@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Queries.Dogs;
 using Application.Queries.Dogs.GetDogById;
 using Application.Queries.Dogs.GetAllDogs;
+using Application.Commands.Dogs.AddDog;
+using Application.Dtos;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -38,11 +40,13 @@ namespace API.Controllers.DogsController
 		}
 
 
-		//// POST api/<DogsController>
-		//[HttpPost]
-		//public void Post([FromBody] string value)
-		//{
-		//}
+		// Create a new dog
+		[HttpPost]
+		[Route("addNewDog")]
+		public async Task <IActionResult> AddDog([FromBody] DogDto newDog)
+		{
+			return Ok(await _midiatR.Send(new AddDogCommand(newDog)));
+		}
 
 		//// PUT api/<DogsController>/5
 		//[HttpPut("{id}")]
