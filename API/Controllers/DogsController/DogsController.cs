@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.Queries.Dogs;
 using Application.Queries.Dogs.GetDogById;
+using Application.Queries.Dogs.GetAllDogs;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace API.Controllers
+namespace API.Controllers.DogsController
 {
 	[Route("api/v1/[controller]")]
 	[ApiController]
@@ -18,32 +19,24 @@ namespace API.Controllers
 			_midiatR = midiatR;
 		}
 
-		// Detta är API endpoint där vi hämtar alla hundar från MockDatabase
-		// url är api/v1/Dogs/getAllDogs
+		// Get all dogs from database
 		[HttpGet]
 		[Route("getAllDogs")]
 		public async Task<IActionResult> GetAllDogs()
 		{
-			// Använda MediatR föra att ta emot requests
-			// MediatR ska ta emot requests och dela dem på Commands eller Queries
-			// Detta är en GET då blir det en Query
-			// Return IActionsResult
 			return Ok(await _midiatR.Send(new GetAllDogsQuery()));
+			// return ok ("get alla dogs")
 		}
 
-
-
-
-
-
-
-		// GET api/<DogsController>/5
+		// Get a dog by Id
 		[HttpGet]
 		[Route("getDogById/{dogId}")]
 		public async Task<IActionResult> GetDogById(Guid dogId)
 		{
 			return Ok(await _midiatR.Send(new GetDogByIdQuery(dogId)));
+			// return ok ("get a dog by Id")
 		}
+
 
 		//// POST api/<DogsController>
 		//[HttpPost]
