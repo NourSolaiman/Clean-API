@@ -5,6 +5,7 @@ using Application.Queries.Dogs.GetAllDogs;
 using Application.Commands.Dogs.AddDog;
 using Application.Dtos;
 using Application.Commands.Dogs.UpdateDog;
+using Application.Commands.Dogs.DeleteDog;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -54,10 +55,13 @@ namespace API.Controllers.DogsController
         {
             return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
         }
-        //// DELETE api/<DogsController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
-    }
+		// Delete a specific dog by Id
+		[HttpDelete]
+		[Route("deleteDog/{deletedDogId}")]
+		public async Task<IActionResult> DeleteDog(Guid deletedDogId)
+		{
+			return Ok(await _midiatR.Send(new DeleteDogByIdCommand(deletedDogId)));
+		}
+
+	}
 }
