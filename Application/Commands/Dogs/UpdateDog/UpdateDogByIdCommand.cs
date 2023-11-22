@@ -14,5 +14,5 @@ namespace Application.Commands.Dogs.UpdateDog
 		}
 		public DogDto UpdatedDog { get; }
 		public Guid Id { get; }
-	}	
+	}
 }
