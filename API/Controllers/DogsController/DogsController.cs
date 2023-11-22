@@ -55,13 +55,13 @@ namespace API.Controllers.DogsController
         {
             return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
         }
-		// Delete a specific dog by Id
-		[HttpDelete]
-		[Route("deleteDog/{deletedDogId}")]
-		public async Task<IActionResult> DeleteDog(Guid deletedDogId)
-		{
-			return Ok(await _midiatR.Send(new DeleteDogByIdCommand(deletedDogId)));
-		}
+        // Delete a specific dog by Id
+        [HttpDelete]
+        [Route("deleteDog/{deletedDogId}")]
+        public async Task<IActionResult> DeleteDog(Guid deletedDogId)
+        {
+            return Ok(await _midiatR.Send(new DeleteDogByIdCommand(deletedDogId)));
+        }
 
-	}
+    }
 }
