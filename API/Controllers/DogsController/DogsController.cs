@@ -10,54 +10,54 @@ using Application.Commands.Dogs.UpdateDog;
 
 namespace API.Controllers.DogsController
 {
-	[Route("api/v1/[controller]")]
-	[ApiController]
-	public class DogsController : ControllerBase
-	{
-		internal readonly IMediator _midiatR;
+    [Route("api/v1/[controller]")]
+    [ApiController]
+    public class DogsController : ControllerBase
+    {
+        internal readonly IMediator _midiatR;
 
-		public DogsController(IMediator midiatR)
-		{
-			_midiatR = midiatR;
-		}
+        public DogsController(IMediator midiatR)
+        {
+            _midiatR = midiatR;
+        }
 
-		// Get all dogs from database
-		[HttpGet]
-		[Route("getAllDogs")]
-		public async Task<IActionResult> GetAllDogs()
-		{
-			return Ok(await _midiatR.Send(new GetAllDogsQuery()));
-			// return ok ("get alla dogs")
-		}
+        // Get all dogs from database
+        [HttpGet]
+        [Route("getAllDogs")]
+        public async Task<IActionResult> GetAllDogs()
+        {
+            return Ok(await _midiatR.Send(new GetAllDogsQuery()));
+            // return ok ("get alla dogs")
+        }
 
-		// Get a dog by Id
-		[HttpGet]
-		[Route("getDogById/{dogId}")]
-		public async Task<IActionResult> GetDogById(Guid dogId)
-		{
-			return Ok(await _midiatR.Send(new GetDogByIdQuery(dogId)));
-			// return ok ("get a dog by Id")
-		}
+        // Get a dog by Id
+        [HttpGet]
+        [Route("getDogById/{dogId}")]
+        public async Task<IActionResult> GetDogById(Guid dogId)
+        {
+            return Ok(await _midiatR.Send(new GetDogByIdQuery(dogId)));
+            // return ok ("get a dog by Id")
+        }
 
-		// Create a new dog
-		[HttpPost]
-		[Route("addNewDog")]
-		public async Task<IActionResult> AddDog([FromBody] DogDto newDog)
-		{
-			return Ok(await _midiatR.Send(new AddDogCommand(newDog)));
-		}
+        // Create a new dog
+        [HttpPost]
+        [Route("addNewDog")]
+        public async Task<IActionResult> AddDog([FromBody] DogDto newDog)
+        {
+            return Ok(await _midiatR.Send(new AddDogCommand(newDog)));
+        }
 
-		// Update a specific dog by Id
-		[HttpPut]
-		[Route("updateDog/{updatedDogId}")]
-		public async Task<IActionResult> UpdateDog([FromBody] DogDto updatedDog, Guid updatedDogId)
-		{
-			return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
-		}
-		//// DELETE api/<DogsController>/5
-		//[HttpDelete("{id}")]
-		//public void Delete(int id)
-		//{
-		//}
-	}
+        // Update a specific dog by Id
+        [HttpPut]
+        [Route("updateDog/{updatedDogId}")]
+        public async Task<IActionResult> UpdateDog([FromBody] DogDto updatedDog, Guid updatedDogId)
+        {
+            return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
+        }
+        //// DELETE api/<DogsController>/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
+    }
 }
