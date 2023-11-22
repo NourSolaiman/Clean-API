@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models
+namespace Application.Dtos
 {
-    public class Animal
+    public class DogDto
     {
-        public Guid animalId { get; set; }
-
         public string Name { get; set; } = string.Empty;
     }
 }
