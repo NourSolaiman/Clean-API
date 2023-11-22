@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Application.Queries.Dogs;
 using Application.Queries.Dogs.GetDogById;
 using Application.Queries.Dogs.GetAllDogs;
 using Application.Commands.Dogs.AddDog;
 using Application.Dtos;
+using Application.Commands.Dogs.UpdateDog;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -39,7 +39,6 @@ namespace API.Controllers.DogsController
             // return ok ("get a dog by Id")
         }
 
-
         // Create a new dog
         [HttpPost]
         [Route("addNewDog")]
@@ -48,12 +47,13 @@ namespace API.Controllers.DogsController
             return Ok(await _midiatR.Send(new AddDogCommand(newDog)));
         }
 
-        //// PUT api/<DogsController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
+        // Update a specific dog by Id
+        [HttpPut]
+        [Route("updateDog/{updatedDogId}")]
+        public async Task<IActionResult> UpdateDog([FromBody] DogDto updatedDog, Guid updatedDogId)
+        {
+            return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
+        }
         //// DELETE api/<DogsController>/5
         //[HttpDelete("{id}")]
         //public void Delete(int id)
