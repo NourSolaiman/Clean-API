@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Commands.Dogs.DeleteDog
 {
-    internal class DeleteDogByIdCommandHandler : IRequestHandler<DeleteDogByIdCommand, Dog>
+    public class DeleteDogByIdCommandHandler : IRequestHandler<DeleteDogByIdCommand, Dog>
     {
         private readonly MockDatabase _mockDatabase;
         public DeleteDogByIdCommandHandler(MockDatabase mockDatabase)
