@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Queries.Dogs.GetDogById
 {
-    internal class GetDogByIdQueryHandler : IRequestHandler<GetDogByIdQuery, Dog>
+    public class GetDogByIdQueryHandler : IRequestHandler<GetDogByIdQuery, Dog>
     {
         private readonly MockDatabase _mockDatabase;
         public GetDogByIdQueryHandler(MockDatabase mockDatabase)
