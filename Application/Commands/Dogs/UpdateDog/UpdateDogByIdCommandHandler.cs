@@ -1,15 +1,10 @@
 ﻿using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Commands.Dogs.UpdateDog
 {
-    internal class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Dog>
+    public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Dog>
     {
         private readonly MockDatabase _mockDatabase;
         public UpdateDogByIdCommandHandler(MockDatabase mockDatabase)
@@ -18,9 +13,21 @@ namespace Application.Commands.Dogs.UpdateDog
         }
         public Task<Dog> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
         {
+            // Check if _mockDatabase.allDogs is null before accessing it
+            if (_mockDatabase.allDogs == null)
+            {
+                // You might want to throw an exception or handle it appropriately based on your application logic
+                throw new InvalidOperationException("The list of dogs is not initialized.");
+            }
+
             Dog dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.Id)!;
-            dogToUpdate.Name = request.UpdatedDog.Name;
-            return Task.FromResult(dogToUpdate);
+
+            if (dogToUpdate != null)
+            {
+                dogToUpdate.Name = request.UpdatedDog.Name;
+            }
+
+            return Task.FromResult(dogToUpdate)!;
         }
     }
 }
