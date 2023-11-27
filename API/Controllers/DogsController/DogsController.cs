@@ -6,6 +6,7 @@ using Application.Commands.Dogs.AddDog;
 using Application.Dtos;
 using Application.Commands.Dogs.UpdateDog;
 using Application.Commands.Dogs.DeleteDog;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -41,6 +42,7 @@ namespace API.Controllers.DogsController
         }
 
         // Create a new dog
+        // [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("addNewDog")]
         public async Task<IActionResult> AddDog([FromBody] DogDto newDog)
