@@ -14,14 +14,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-	options.AddSecurityDefinition("outh2", new OpenApiSecurityScheme
-	{
-		In = ParameterLocation.Header,
-		Name = "Authorization",
-		Type = SecuritySchemeType.ApiKey
-	});
+    options.AddSecurityDefinition("outh2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
 
-	options.OperationFilter<SecurityRequirementsOperationFilter>();
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
 builder.Services.AddApplication().AddInfrastructure();
@@ -29,26 +29,26 @@ builder.Services.AddApplication().AddInfrastructure();
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
-	//options.DefaultAuthenticateScheme = "Bearer";
-	//options.DefaultChallengeScheme = "Bearer";
+    //options.DefaultAuthenticateScheme = "Bearer";
+    //options.DefaultChallengeScheme = "Bearer";
 }).AddJwtBearer("Bearer", options =>
 {
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuerSigningKey = true,
-		ValidateIssuer = true,
-		ValidateAudience = true,
-		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-			builder.Configuration.GetSection("JWTToken:Token").Value!)),
-	};
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+            builder.Configuration.GetSection("JWTToken:Token").Value!)),
+    };
 });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

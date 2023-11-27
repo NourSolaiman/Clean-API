@@ -3,12 +3,12 @@ using MediatR;
 
 namespace Application.Queries.Birds.GetBirdsById
 {
-	public class GetBirdByIdQuery : IRequest<Bird>
-	{
-		public GetBirdByIdQuery(Guid birdId)
-		{
-			Id = birdId;
-		}
-		public Guid Id { get; }
-	}
+    public class GetBirdByIdQuery : IRequest<Bird>
+    {
+        public GetBirdByIdQuery(Guid birdId)
+        {
+            Id = birdId;
+        }
+        public Guid Id { get; }
+    }
 }
