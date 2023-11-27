@@ -1,5 +1,4 @@
-﻿using Application.Dtos;
-using Application.Queries.Dogs.GetAllDogs;
+﻿using Application.Queries.Dogs.GetAllDogs;
 using Infrastructure.Database;
 
 namespace Test.DogTests.QueryTest
