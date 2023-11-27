@@ -1,4 +1,6 @@
-﻿using Application.Queries.Birds.GetAllBirds;
+﻿using Application.Commands.Birds.AddBird;
+using Application.Dtos;
+using Application.Queries.Birds.GetAllBirds;
 using Application.Queries.Birds.GetBirdsById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -36,14 +38,14 @@ namespace API.Controllers.DogsController
             // return ok ("get a bird by Id")
         }
 
-        //// Create a new bird
-        //// [Authorize(Roles = "Admin")]
-        //[HttpPost]
-        //[Route("addNewBird")]
-        //public async Task<IActionResult> AddBird([FromBody] DogDto newBird)
-        //{
-        //	return Ok(await _midiatR.Send(new AddBirdCommand(newBird)));
-        //}
+        // Create a new bird
+        // [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("addNewBird")]
+        public async Task<IActionResult> AddBird([FromBody] BirdDto newBird)
+        {
+            return Ok(await _midiatR.Send(new AddBirdCommand(newBird)));
+        }
 
         //// Update a specific bird by Id
         //[HttpPut]
