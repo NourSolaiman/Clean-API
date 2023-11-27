@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Application.Dtos
 {
-    public class DogDto
+    public class UserDto
     {
-        public string Name { get; set; } = string.Empty;
+        public required string Username { get; set; }
+        public required string Password { get; set; }
     }
 }
