@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Commands.Dogs.DeleteDog
 {
-    public class DeleteDogByIdCommandHandler : IRequestHandler<DeleteDogByIdCommand, Bird>
+    public class DeleteDogByIdCommandHandler : IRequestHandler<DeleteDogByIdCommand, Dog>
     {
         private readonly MockDatabase _mockDatabase;
         public DeleteDogByIdCommandHandler(MockDatabase mockDatabase)
@@ -12,9 +12,9 @@ namespace Application.Commands.Dogs.DeleteDog
             _mockDatabase = mockDatabase;
         }
 
-        public Task<Bird> Handle(DeleteDogByIdCommand request, CancellationToken cancellationToken)
+        public Task<Dog> Handle(DeleteDogByIdCommand request, CancellationToken cancellationToken)
         {
-            Bird dogToDelete = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.DeletedDogId)!;
+            Dog dogToDelete = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.DeletedDogId)!;
 
             if (dogToDelete != null)
             {

@@ -4,23 +4,23 @@ using MediatR;
 
 namespace Application.Commands.Dogs.UpdateDog
 {
-    public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Bird>
+    public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Dog>
     {
         private readonly MockDatabase _mockDatabase;
         public UpdateDogByIdCommandHandler(MockDatabase mockDatabase)
         {
             _mockDatabase = mockDatabase;
         }
-        public Task<Bird> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
+        public Task<Dog> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
         {
             // Check if _mockDatabase.allDogs is null before accessing it
             if (_mockDatabase.allDogs == null)
             {
-                // You might want to throw an exception or handle it appropriately based on your application logic
+                //  throw an exception or handle it appropriately based on my application logic
                 throw new InvalidOperationException("The list of dogs is not initialized.");
             }
 
-            Bird dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.Id)!;
+            Dog dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.Id)!;
 
             if (dogToUpdate != null)
             {

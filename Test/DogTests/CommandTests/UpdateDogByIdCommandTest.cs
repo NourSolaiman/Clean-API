@@ -22,7 +22,7 @@ namespace Application.Tests.Commands.Dogs
         public async Task Handle_UpdatesDogInDatabase()
         {
             // Arrange
-            var initialDog = new Bird { animalId = Guid.NewGuid(), Name = "InitialDogName" };
+            var initialDog = new Dog { animalId = Guid.NewGuid(), Name = "InitialDogName" };
             _mockDatabase.allDogs.Add(initialDog);
 
             // Create an instance of UpdateDogByIdCommand
@@ -36,7 +36,7 @@ namespace Application.Tests.Commands.Dogs
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsInstanceOf<Bird>(result);
+            Assert.IsInstanceOf<Dog>(result);
 
             // Check that the dog has the correct updated name
             Assert.That(result.Name, Is.EqualTo("UpdatedDogName"));
