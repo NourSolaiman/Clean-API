@@ -29,7 +29,7 @@ namespace Test.DogTests.QueryTest
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsInstanceOf<List<Domain.Models.Bird>>(result); // Adjust this assertion based on the actual return type.
+            Assert.IsInstanceOf<List<Domain.Models.Dog>>(result); // Adjust this assertion based on the actual return type.
             Assert.That(result.Count, Is.GreaterThan(0));
         }
 
