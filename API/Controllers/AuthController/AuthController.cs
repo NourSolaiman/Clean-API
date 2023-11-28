@@ -64,7 +64,7 @@ namespace API.Controllers.AuthController
             (
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
             );
 
             var tokenHandler = new JwtSecurityTokenHandler();

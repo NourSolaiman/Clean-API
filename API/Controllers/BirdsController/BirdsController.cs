@@ -5,6 +5,7 @@ using Application.Dtos;
 using Application.Queries.Birds.GetAllBirds;
 using Application.Queries.Birds.GetBirdsById;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -41,7 +42,7 @@ namespace API.Controllers.DogsController
         }
 
         // Create a new bird
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("addNewBird")]
         public async Task<IActionResult> AddBird([FromBody] BirdDto newBird)
@@ -50,6 +51,7 @@ namespace API.Controllers.DogsController
         }
 
         // Update a specific bird by Id
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("updateBird/{updatedBirdId}")]
         public async Task<IActionResult> UpdateBird([FromBody] BirdDto updatedBird, Guid updatedBirdId)
@@ -58,6 +60,7 @@ namespace API.Controllers.DogsController
         }
 
         // Delete a specific bird by Id
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         [Route("deleteBird/{deletedBirdId}")]
         public async Task<IActionResult> DeleteBird(Guid deletedBirdId)
