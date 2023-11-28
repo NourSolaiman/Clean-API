@@ -22,7 +22,7 @@ namespace Application.Tests.Commands.Dogs
         public async Task Handle_UpdatesDogInDatabase()
         {
             // Arrange
-            var initialDog = new Bird { animalId = Guid.NewGuid(), Name = "InitialDogName" };
+            var initialDog = new Dog { animalId = Guid.NewGuid(), Name = "InitialDogName" };
             _mockDatabase.allDogs.Add(initialDog);
 
             // Create an instance of UpdateDogByIdCommand

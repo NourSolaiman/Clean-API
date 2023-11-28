@@ -1,5 +1,6 @@
 ﻿using Application.Commands.Birds.AddBirds;
 using Application.Commands.Birds.DeleteBird;
+using Application.Commands.Birds.UpdateBird;
 using Application.Dtos;
 using Application.Queries.Birds.GetAllBirds;
 using Application.Queries.Birds.GetBirdsById;
@@ -48,13 +49,14 @@ namespace API.Controllers.DogsController
             return Ok(await _midiatR.Send(new AddBirdCommand(newBird)));
         }
 
-        //// Update a specific bird by Id
-        //[HttpPut]
-        //[Route("updateBird/{updatedBirdId}")]
-        //public async Task<IActionResult> UpdateBird([FromBody] BirdDto updatedBird, Guid updatedBirdId)
-        //{
-        //    return Ok(await _midiatR.Send(new UpdateBirdByIdCommand(updatedBird, updatedBirdId)));
-        //}
+        // Update a specific bird by Id
+        [HttpPut]
+        [Route("updateBird/{updatedBirdId}")]
+        public async Task<IActionResult> UpdateBird([FromBody] BirdDto updatedBird, Guid updatedBirdId)
+        {
+            return Ok(await _midiatR.Send(new UpdateBirdByIdCommand(updatedBird, updatedBirdId)));
+        }
+
         // Delete a specific bird by Id
         [HttpDelete]
         [Route("deleteBird/{deletedBirdId}")]
