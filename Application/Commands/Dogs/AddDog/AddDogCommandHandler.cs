@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Commands.Dogs.AddDog
 {
-    public class AddDogCommandHandler : IRequestHandler<AddDogCommand, Dog>
+    public class AddDogCommandHandler : IRequestHandler<AddDogCommand, Bird>
     {
         private readonly MockDatabase _mockDatabase;
 
@@ -12,9 +12,9 @@ namespace Application.Commands.Dogs.AddDog
         {
             _mockDatabase = mockDatabase;
         }
-        public Task<Dog> Handle(AddDogCommand request, CancellationToken cancellationToken)
+        public Task<Bird> Handle(AddDogCommand request, CancellationToken cancellationToken)
         {
-            Dog dogToCreate = new()
+            Bird dogToCreate = new()
             {
                 animalId = Guid.NewGuid(),
                 Name = request.NewDog.Name

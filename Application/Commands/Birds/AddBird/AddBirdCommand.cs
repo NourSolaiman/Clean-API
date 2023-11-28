@@ -2,7 +2,7 @@
 using Domain.Models;
 using MediatR;
 
-namespace Application.Commands.Birds.AddBird
+namespace Application.Commands.Birds.AddBirds
 {
     public class AddBirdCommand : IRequest<Bird>
     {

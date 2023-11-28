@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Commands.Dogs.AddDog
 {
-    public class AddDogCommand : IRequest<Dog>
+    public class AddDogCommand : IRequest<Bird>
     {
         public AddDogCommand(DogDto newDog)
         {

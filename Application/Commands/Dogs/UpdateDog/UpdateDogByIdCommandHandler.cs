@@ -4,14 +4,14 @@ using MediatR;
 
 namespace Application.Commands.Dogs.UpdateDog
 {
-    public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Dog>
+    public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Bird>
     {
         private readonly MockDatabase _mockDatabase;
         public UpdateDogByIdCommandHandler(MockDatabase mockDatabase)
         {
             _mockDatabase = mockDatabase;
         }
-        public Task<Dog> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
+        public Task<Bird> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
         {
             // Check if _mockDatabase.allDogs is null before accessing it
             if (_mockDatabase.allDogs == null)
@@ -20,7 +20,7 @@ namespace Application.Commands.Dogs.UpdateDog
                 throw new InvalidOperationException("The list of dogs is not initialized.");
             }
 
-            Dog dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.Id)!;
+            Bird dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.Id)!;
 
             if (dogToUpdate != null)
             {
