@@ -2,7 +2,7 @@
 using Infrastructure.Database;
 using MediatR;
 
-namespace Application.Commands.Birds.AddBird
+namespace Application.Commands.Birds.AddBirds
 {
     public class AddBirdCommandHandler : IRequestHandler<AddBirdCommand, Bird>
     {

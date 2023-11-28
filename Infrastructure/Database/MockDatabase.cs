@@ -4,7 +4,7 @@ namespace Infrastructure.Database
 {
     public class MockDatabase
     {
-        public List<Dog> allDogs
+        public List<Bird> allDogs
         {
             get { return allDogsFromMockDatabase; }
             set { allDogsFromMockDatabase = value; }
@@ -27,25 +27,25 @@ namespace Infrastructure.Database
 };
 
 
-        private static List<Dog> allDogsFromMockDatabase = new()
+        private static List<Bird> allDogsFromMockDatabase = new()
         {
-            new Dog
+            new Bird
             {
                 animalId = Guid.NewGuid(), Name = "PeppeLeDog"
             },
-            new Dog
+            new Bird
             {
                 animalId = Guid.NewGuid(), Name = "Fofi"
             },
-            new Dog
+            new Bird
             {
                 animalId = Guid.NewGuid(), Name = "Simo"
             },
-            new Dog
+            new Bird
             {
                 animalId = Guid.NewGuid(), Name = "Lano"
             },
-            new Dog { animalId = new Guid("12345678-1234-5678-1234-567812345678"), Name = "TestDogForUnitTests"}
+            new Bird { animalId = new Guid("12345678-1234-5678-1234-567812345678"), Name = "TestDogForUnitTests"}
         };
     }
 }
