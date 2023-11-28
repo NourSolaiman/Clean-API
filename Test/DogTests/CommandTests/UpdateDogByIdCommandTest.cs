@@ -13,6 +13,7 @@ namespace Application.Tests.Commands.Dogs
 
         [SetUp]
         public void Setup()
+
         {
             _mockDatabase = new MockDatabase();
             _handler = new UpdateDogByIdCommandHandler(_mockDatabase);
