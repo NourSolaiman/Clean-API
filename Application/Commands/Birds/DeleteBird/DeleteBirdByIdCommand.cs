@@ -3,13 +3,13 @@ using MediatR;
 
 namespace Application.Commands.Birds.DeleteBird
 {
-	public class DeleteBirdByIdCommand : IRequest<Bird>
-	{
-		public DeleteBirdByIdCommand(Guid deletedBirdId)
-		{
-			DeletedBirdId = deletedBirdId;
-		}
+    public class DeleteBirdByIdCommand : IRequest<Bird>
+    {
+        public DeleteBirdByIdCommand(Guid deletedBirdId)
+        {
+            DeletedBirdId = deletedBirdId;
+        }
 
-		public Guid DeletedBirdId { get; }
-	}
+        public Guid DeletedBirdId { get; }
+    }
 }
