@@ -35,15 +35,14 @@ namespace Test.Cats.DeleteCat
         }
 
         [Test]
-        public void Handle_NonExistingCatId_DoesNotThrowException()
+        public void Handle_NonExistingCatId_ThrowException()
         {
             // Arrange
             var nonExistingCatId = Guid.NewGuid();
-
             var command = new DeleteCatByIdCommand(nonExistingCatId);
 
             // Act and Assert
-            Assert.DoesNotThrow(() => _handler.Handle(command, CancellationToken.None));
+            Assert.Throws<Exception>(() => _handler.Handle(command, CancellationToken.None));
         }
 
     }
