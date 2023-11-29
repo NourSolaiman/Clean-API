@@ -19,10 +19,10 @@ namespace Application.Cats.DeleteCat.DeleteCat
 
             if (catToDelete == null)
             {
-                throw new Exception ("There is no cat with this ID");
+                throw new Exception("There is no cat with this ID");
             }
-			_mockDatabase.allCats.Remove(catToDelete);
-			return Task.FromResult(catToDelete)!;
+            _mockDatabase.allCats.Remove(catToDelete);
+            return Task.FromResult(catToDelete)!;
         }
     }
 }
