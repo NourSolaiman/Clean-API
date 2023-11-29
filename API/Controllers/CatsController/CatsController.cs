@@ -1,4 +1,5 @@
-﻿using Application.Queries.Cats.GetAllCats;
+﻿using Application.Cats.GetAllCats.GetCatsById;
+using Application.Queries.Cats.GetAllCats;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,14 +27,14 @@ namespace API.Controllers.CatsController
             // return ok ("get alla cats")
         }
 
-        //// Get a cat by Id
-        //[HttpGet]
-        //[Route("getCatById/{catId}")]
-        //public async Task<IActionResult> GetCatById(Guid catId)
-        //{
-        //	return Ok(await _midiatR.Send(new GetCatByIdQuery(catId)));
-        //	// return ok ("get a cat by Id")
-        //}
+        // Get a cat by Id
+        [HttpGet]
+        [Route("getCatById/{catId}")]
+        public async Task<IActionResult> GetCatById(Guid catId)
+        {
+            return Ok(await _midiatR.Send(new GetCatByIdQuery(catId)));
+            // return ok ("get a cat by Id")
+        }
 
         //// Create a new cat
         //[Authorize(Roles = "Admin")]
