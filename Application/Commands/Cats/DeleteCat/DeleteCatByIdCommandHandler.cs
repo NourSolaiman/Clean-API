@@ -17,11 +17,11 @@ namespace Application.Cats.DeleteCat.DeleteCat
         {
             Cat catToDelete = _mockDatabase.allCats.FirstOrDefault(cat => cat.animalId == request.DeletedCatId)!;
 
-            if (catToDelete != null)
+            if (catToDelete == null)
             {
-                _mockDatabase.allCats.Remove(catToDelete);
+                throw new Exception("There is no cat with this ID");
             }
-
+            _mockDatabase.allCats.Remove(catToDelete);
             return Task.FromResult(catToDelete)!;
         }
     }
