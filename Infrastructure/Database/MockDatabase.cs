@@ -14,11 +14,11 @@ namespace Infrastructure.Database
             get { return allBirdsFromMockDatabase; }
             set { allBirdsFromMockDatabase = value; }
         }
-        //public List<Cat> allCats
-        //{
-        //	get { return allCatsFromMockDatabase; }
-        //	set { allCatsFromMockDatabase = value; }
-        //}
+        public List<Cat> allCats
+        {
+            get { return allCatsFromMockDataBase; }
+            set { allCatsFromMockDataBase = value; }
+        }
 
         private static List<Dog> allDogsFromMockDatabase = new()
         {
@@ -51,23 +51,23 @@ namespace Infrastructure.Database
             new Bird { animalId = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a"), Name = "TestBirdForUnitTests"}
         };
 
-        //private static List<Cat> allCats = new()
+        private static List<Cat> allCatsFromMockDataBase = new()
 
-        //{
+        {
 
-        //	new Cat { Id = Guid.NewGuid(), Name = "Fluffy", LikesToPlay = true },
+            new Cat { animalId = Guid.NewGuid(), Name = "Fluffy", LikesToPlay = true },
 
-        //	new Cat { Id = Guid.NewGuid(), Name = "Whiskers", LikesToPlay = false },
+            new Cat { animalId = Guid.NewGuid(), Name = "Whiskers", LikesToPlay = false },
 
-        //	new Cat { Id = Guid.NewGuid(), Name = "Lickers", LikesToPlay = false },
+            new Cat { animalId = Guid.NewGuid(), Name = "Lickers", LikesToPlay = false },
 
-        //	new Cat { Id = Guid.NewGuid(), Name = "Sickers", LikesToPlay = true },
+            new Cat { animalId = Guid.NewGuid(), Name = "Sickers", LikesToPlay = true },
 
-        //	new Cat { Id = Guid.NewGuid(), Name = "Fluffers", LikesToPlay = false },
+            new Cat { animalId = Guid.NewGuid(), Name = "Fluffers", LikesToPlay = false },
 
-        //	new Cat { Id = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5"), Name = "TestCatForUnitTests"}
+            new Cat { animalId = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5"), Name = "TestCatForUnitTests"}
 
-        //};
+        };
 
     }
 }
