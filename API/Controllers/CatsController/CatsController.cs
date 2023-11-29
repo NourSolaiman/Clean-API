@@ -1,6 +1,9 @@
 ﻿using Application.Cats.GetAllCats.GetCatsById;
+using Application.Commands.Cats.AddCats;
+using Application.Dtos;
 using Application.Queries.Cats.GetAllCats;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -36,14 +39,14 @@ namespace API.Controllers.CatsController
             // return ok ("get a cat by Id")
         }
 
-        //// Create a new cat
-        //[Authorize(Roles = "Admin")]
-        //[HttpPost]
-        //[Route("addNewCat")]
-        //public async Task<IActionResult> AddCat([FromBody] CatDto newCat)
-        //{
-        //	return Ok(await _midiatR.Send(new AddCatCommand(newCat)));
-        //}
+        // Create a new cat
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("addNewCat")]
+        public async Task<IActionResult> AddCat([FromBody] CatDto newCat)
+        {
+            return Ok(await _midiatR.Send(new AddCatCommand(newCat)));
+        }
 
         //// Update a specific cat by Id
         //[Authorize(Roles = "Admin")]
