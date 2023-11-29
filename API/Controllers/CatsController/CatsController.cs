@@ -1,5 +1,6 @@
 ﻿using Application.Cats.GetAllCats.GetCatsById;
 using Application.Commands.Cats.AddCats;
+using Application.Commands.Cats.DeleteCat;
 using Application.Dtos;
 using Application.Queries.Cats.GetAllCats;
 using MediatR;
@@ -57,14 +58,14 @@ namespace API.Controllers.CatsController
         //	return Ok(await _midiatR.Send(new UpdateCatByIdCommand(updatedCat, updatedCatId)));
         //}
 
-        //// Delete a specific cat by Id
-        //[Authorize(Roles = "Admin")]
-        //[HttpDelete]
-        //[Route("deleteCat/{deletedCatId}")]
-        //public async Task<IActionResult> DeleteCat(Guid deletedCatId)
-        //{
-        //	return Ok(await _midiatR.Send(new DeleteCatByIdCommand(deletedCatId)));
-        //}
+        // Delete a specific cat by Id
+        [Authorize(Roles = "Admin")]
+        [HttpDelete]
+        [Route("deleteCat/{deletedCatId}")]
+        public async Task<IActionResult> DeleteCat(Guid deletedCatId)
+        {
+            return Ok(await _midiatR.Send(new DeleteCatByIdCommand(deletedCatId)));
+        }
 
     }
 }
