@@ -4,6 +4,8 @@ using Application.Commands.Dogs.UpdateDog;
 using Application.Dtos;
 using Application.Queries.Dogs.GetAllDogs;
 using Application.Queries.Dogs.GetDogById;
+using Application.Validators.Dog;
+using Application.Validators.GuidValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +19,14 @@ namespace API.Controllers.DogsController
     public class DogsController : ControllerBase
     {
         internal readonly IMediator _midiatR;
+        internal readonly DogValidator _dogValidator;
+        internal readonly GuidValidator _guidValidator;
 
-        public DogsController(IMediator midiatR)
+        public DogsController(IMediator midiatR, DogValidator dogValidator, GuidValidator guidValidator)
         {
             _midiatR = midiatR;
+            _dogValidator = dogValidator;
+            _guidValidator = guidValidator;
         }
 
         // Get all dogs from database
@@ -28,8 +34,16 @@ namespace API.Controllers.DogsController
         [Route("getAllDogs")]
         public async Task<IActionResult> GetAllDogs()
         {
-            return Ok(await _midiatR.Send(new GetAllDogsQuery()));
-            // return ok ("get alla dogs")
+            try
+            {
+                return Ok(await _midiatR.Send(new GetAllDogsQuery()));
+                // return ok ("get alla dogs")
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+
+            }
         }
 
         // Get a dog by Id
@@ -37,17 +51,48 @@ namespace API.Controllers.DogsController
         [Route("getDogById/{dogId}")]
         public async Task<IActionResult> GetDogById(Guid dogId)
         {
-            return Ok(await _midiatR.Send(new GetDogByIdQuery(dogId)));
-            // return ok ("get a dog by Id")
+            // Validate Guid
+            var validatedGuid = _guidValidator.Validate(dogId);
+            // Error handling
+            if (!validatedGuid.IsValid)
+            {
+                return BadRequest(validatedGuid.Errors.ConvertAll(errors => errors.ErrorMessage));
+            }
+            // Try Catch
+            try
+            {
+                return Ok(await _midiatR.Send(new GetDogByIdQuery(dogId)));
+                // return ok ("get a dog by Id")
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         // Create a new dog
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("addNewDog")]
+        [ProducesResponseType(typeof(DogDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> AddDog([FromBody] DogDto newDog)
         {
-            return Ok(await _midiatR.Send(new AddDogCommand(newDog)));
+            // Validate Dog
+            var validatedDog = _dogValidator.Validate(newDog);
+            // Error handling
+            if (!validatedDog.IsValid)
+            {
+                return BadRequest(validatedDog.Errors.ConvertAll(errors => errors.ErrorMessage));
+            }
+            // Try Catch
+            try
+            {
+                return Ok(await _midiatR.Send(new AddDogCommand(newDog)));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         // Update a specific dog by Id
@@ -56,15 +101,53 @@ namespace API.Controllers.DogsController
         [Route("updateDog/{updatedDogId}")]
         public async Task<IActionResult> UpdateDog([FromBody] DogDto updatedDog, Guid updatedDogId)
         {
-            return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
+            // Validate Guid
+            var validatedGuid = _guidValidator.Validate(updatedDogId);
+            var validatedDog = _dogValidator.Validate(updatedDog);
+            // Error handling
+            if (!validatedGuid.IsValid)
+            {
+                return BadRequest(validatedGuid.Errors.ConvertAll(errors => errors.ErrorMessage));
+            }
+
+            if (!validatedDog.IsValid)
+            {
+                return BadRequest(validatedDog.Errors.ConvertAll(errors => errors.ErrorMessage));
+            }
+            // Try Catch
+            try
+            {
+                return Ok(await _midiatR.Send(new UpdateDogByIdCommand(updatedDog, updatedDogId)));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         // Delete a specific dog by Id
         [Authorize(Roles = "Admin")]
         [HttpDelete]
         [Route("deleteDog/{deletedDogId}")]
+
         public async Task<IActionResult> DeleteDog(Guid deletedDogId)
         {
-            return Ok(await _midiatR.Send(new DeleteDogByIdCommand(deletedDogId)));
+            // Validate Guid
+            var validatedGuid = _guidValidator.Validate(deletedDogId);
+            // Error handling
+            if (!validatedGuid.IsValid)
+            {
+                return BadRequest(validatedGuid.Errors.ConvertAll(errors => errors.ErrorMessage));
+            }
+            // Try Catch
+            try
+            {
+                return Ok(await _midiatR.Send(new DeleteDogByIdCommand(deletedDogId)));
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
     }

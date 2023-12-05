@@ -1,51 +1,64 @@
 ﻿using Application.Commands.Dogs.UpdateDog;
 using Application.Dtos;
-using Domain.Models;
 using Infrastructure.Database;
 
-namespace Application.Tests.Commands.Dogs
+namespace Test.DogTests.CommandTest
 {
     [TestFixture]
-    public class UpdateDogByIdCommandHandlerTests
+    public class UpdateDogByIdCommandTest
     {
         private UpdateDogByIdCommandHandler _handler;
         private MockDatabase _mockDatabase;
 
         [SetUp]
-        public void Setup()
-
+        public void SetUp()
         {
+            // Initialize the handler and mock database before each test
             _mockDatabase = new MockDatabase();
             _handler = new UpdateDogByIdCommandHandler(_mockDatabase);
         }
 
         [Test]
-        public async Task Handle_UpdatesDogInDatabase()
+        public async Task Handle_ExistingDogId_UpdatesDogInDatabase()
         {
             // Arrange
-            var initialDog = new Dog { animalId = Guid.NewGuid(), Name = "InitialDogName" };
-            _mockDatabase.allDogs.Add(initialDog);
+            var existingDogId = _mockDatabase.allDogs[0].animalId;
+            var initialDogName = _mockDatabase.allDogs[0].Name;
 
-            // Create an instance of UpdateDogByIdCommand
-            var command = new UpdateDogByIdCommand(
-                updatedDog: new DogDto { Name = "UpdatedDogName" },
-                id: initialDog.animalId
-            );
+            var updatedDogDto = new DogDto
+            {
+                Id = existingDogId,
+                Name = "Fofi",
+            };
+
+            var command = new UpdateDogByIdCommand(existingDogId, updatedDogDto);
 
             // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, default);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsInstanceOf<Dog>(result);
+            var updatedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.animalId == existingDogId);
+            Assert.NotNull(updatedDog);
+            // Assert that the names match
+            Assert.That(updatedDog.Name, Is.EqualTo(updatedDogDto.Name));
+        }
 
-            // Check that the dog has the correct updated name
-            Assert.That(result.Name, Is.EqualTo("UpdatedDogName"));
+        [Test]
+        public void Handle_NonExistingDogId_DoesNotThrowException()
+        {
+            // Arrange
+            var nonExistingDogId = Guid.NewGuid();
 
-            // Check that the dog has been updated in MockDatabase
-            var updatedDogInDatabase = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == command.Id);
-            Assert.That(updatedDogInDatabase, Is.Not.Null);
-            Assert.That(updatedDogInDatabase.Name, Is.EqualTo("UpdatedDogName"));
+            var updatedDogDto = new DogDto
+            {
+                Id = nonExistingDogId,
+                Name = "UpdatedDogName",
+            };
+
+            var command = new UpdateDogByIdCommand(nonExistingDogId, updatedDogDto);
+
+            // Act and Assert
+            Assert.DoesNotThrow(() => _handler.Handle(command, default));
         }
     }
 }
