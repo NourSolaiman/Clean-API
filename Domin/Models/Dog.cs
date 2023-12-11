@@ -2,9 +2,9 @@
 {
     public class Dog : Animal
     {
-        public string Bark()
-        {
-            return "This animal barks";
-        }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public override string TypeOfAnimal => "Dog";
+        public override string animalCanDo => "This animal can bark";
     }
 }
