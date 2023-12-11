@@ -22,7 +22,7 @@ namespace Test.DogTests.CommandTest
         public async Task Handle_ExistingDogId_UpdatesDogInDatabase()
         {
             // Arrange
-            var existingDogId = _mockDatabase.allDogs[0].animalId;
+            var existingDogId = _mockDatabase.allDogs[0].Id;
             var initialDogName = _mockDatabase.allDogs[0].Name;
 
             var updatedDogDto = new DogDto
@@ -37,7 +37,7 @@ namespace Test.DogTests.CommandTest
             await _handler.Handle(command, default);
 
             // Assert
-            var updatedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.animalId == existingDogId);
+            var updatedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.Id == existingDogId);
             Assert.NotNull(updatedDog);
             // Assert that the names match
             Assert.That(updatedDog.Name, Is.EqualTo(updatedDogDto.Name));

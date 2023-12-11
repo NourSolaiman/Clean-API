@@ -23,13 +23,13 @@ namespace Application.Tests.Commands.Cats
         public async Task Handle_UpdatesCatInDatabase()
         {
             // Arrange
-            var initialCat = new Cat { animalId = Guid.NewGuid(), Name = "InitialCatName" };
+            var initialCat = new Cat { Id = Guid.NewGuid(), Name = "InitialCatName" };
             _mockDatabase.allCats.Add(initialCat);
 
             // Create an instance of UpdateBirdByIdCommand
             var command = new UpdateCatByIdCommand(
                 updatedCat: new CatDto { Name = "UpdatedCatName" },
-                id: initialCat.animalId
+                id: initialCat.Id
             );
 
             // Act
@@ -43,7 +43,7 @@ namespace Application.Tests.Commands.Cats
             Assert.That(result.Name, Is.EqualTo("UpdatedCatName"));
 
             // Check that the cat has been updated in MockDatabase
-            var updatedCatInDatabase = _mockDatabase.allCats.FirstOrDefault(cat => cat.animalId == command.Id);
+            var updatedCatInDatabase = _mockDatabase.allCats.FirstOrDefault(cat => cat.Id == command.Id);
             Assert.That(updatedCatInDatabase, Is.Not.Null);
             Assert.That(updatedCatInDatabase.Name, Is.EqualTo("UpdatedCatName"));
         }

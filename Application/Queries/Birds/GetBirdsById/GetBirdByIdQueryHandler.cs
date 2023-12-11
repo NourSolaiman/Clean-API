@@ -14,7 +14,7 @@ namespace Application.Queries.Birds.GetBirdById
         }
         public Task<Bird> Handle(GetBirdByIdQuery request, CancellationToken cancellationToken)
         {
-            Bird wantedBird = _mockDatabase.allBirds.Where(Bird => Bird.animalId == request.Id).FirstOrDefault()!;
+            Bird wantedBird = _mockDatabase.allBirds.Where(Bird => Bird.Id == request.Id).FirstOrDefault()!;
             return Task.FromResult(wantedBird);
         }
     }

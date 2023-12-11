@@ -21,7 +21,7 @@ namespace Test.DogTests.CommandTest
         public async Task Handle_ExistingDogId_RemovesDogFromDatabase()
         {
             // Arrange
-            var existingDogId = _mockDatabase.allDogs[0].animalId; // Assuming there's at least one dog in the mock database
+            var existingDogId = _mockDatabase.allDogs[0].Id; // Assuming there's at least one dog in the mock database
 
             var command = new DeleteDogByIdCommand(existingDogId);
 
@@ -29,7 +29,7 @@ namespace Test.DogTests.CommandTest
             await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var deletedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.animalId == existingDogId);
+            var deletedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.Id == existingDogId);
             Assert.IsNull(deletedDog);
         }
 

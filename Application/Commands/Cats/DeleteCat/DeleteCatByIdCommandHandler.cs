@@ -15,7 +15,7 @@ namespace Application.Cats.DeleteCat.DeleteCat
 
         public Task<Cat> Handle(DeleteCatByIdCommand request, CancellationToken cancellationToken)
         {
-            Cat catToDelete = _mockDatabase.allCats.FirstOrDefault(cat => cat.animalId == request.DeletedCatId)!;
+            Cat catToDelete = _mockDatabase.allCats.FirstOrDefault(cat => cat.Id == request.DeletedCatId)!;
 
             if (catToDelete == null)
             {

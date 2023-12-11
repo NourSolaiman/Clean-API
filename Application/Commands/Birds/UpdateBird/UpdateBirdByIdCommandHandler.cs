@@ -20,7 +20,7 @@ namespace Application.Commands.Birds.UpdateBird
                 throw new InvalidOperationException("The list of birds is not initialized.");
             }
 
-            Bird birdToUpdate = _mockDatabase.allBirds.FirstOrDefault(bird => bird.animalId == request.Id)!;
+            Bird birdToUpdate = _mockDatabase.allBirds.FirstOrDefault(bird => bird.Id == request.Id)!;
 
             if (birdToUpdate != null)
             {

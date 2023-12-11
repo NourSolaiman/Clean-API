@@ -9,8 +9,8 @@ namespace Infrastructure.Database.MySQLDatabase
         public caDBContext(DbContextOptions<caDBContext> options) : base(options) { }
 
         public virtual DbSet<Dog> Dogs { get; set; }
-        //public virtual DbSet<Bird> Birds { get; set; }
-        //public virtual DbSet<Cat> Cats { get; set; }
+        public virtual DbSet<Bird> Birds { get; set; }
+        public virtual DbSet<Cat> Cats { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
 
@@ -27,6 +27,7 @@ namespace Infrastructure.Database.MySQLDatabase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            AnimalSeed.SeedAnimals(modelBuilder);
         }
     }
 }
