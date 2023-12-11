@@ -35,7 +35,7 @@ namespace Infrastructure.Repositories.Dogs
             {
                 List<Dog> allDogsFromDatabase = caDBContext.Dogs.ToList();
 
-                Dog wantedDog = allDogsFromDatabase.FirstOrDefault(dog => dog.animalId == dogId)!;
+                Dog wantedDog = allDogsFromDatabase.FirstOrDefault(dog => dog.Id == dogId)!;
 
                 return await Task.FromResult(wantedDog);
             }

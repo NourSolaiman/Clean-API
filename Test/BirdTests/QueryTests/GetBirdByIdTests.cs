@@ -31,7 +31,7 @@ namespace Test.BirdTests.QueryTest
 
             // Assert
             Assert.NotNull(result);
-            Assert.That(result.animalId, Is.EqualTo(birdId));
+            Assert.That(result.Id, Is.EqualTo(birdId));
         }
 
         [Test]

@@ -20,7 +20,7 @@ namespace Application.Commands.Cats.UpdateCat
                 throw new InvalidOperationException("The list of cats is not initialized.");
             }
 
-            Cat catToUpdate = _mockDatabase.allCats.FirstOrDefault(cat => cat.animalId == request.Id)!;
+            Cat catToUpdate = _mockDatabase.allCats.FirstOrDefault(cat => cat.Id == request.Id)!;
 
             if (catToUpdate != null)
             {

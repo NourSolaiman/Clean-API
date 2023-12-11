@@ -22,7 +22,7 @@ namespace Test.Birds.DeleteBird
         public async Task Handle_ExistingBirdId_RemovesBirdFromDatabase()
         {
             // Arrange
-            var existingBirdId = _mockDatabase.allBirds[0].animalId; // Assuming there's at least one bird in the mock database
+            var existingBirdId = _mockDatabase.allBirds[0].Id; // Assuming there's at least one bird in the mock database
 
             var command = new DeleteBirdByIdCommand(existingBirdId);
 
@@ -30,7 +30,7 @@ namespace Test.Birds.DeleteBird
             await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var deletedBird = _mockDatabase.allBirds.SingleOrDefault(d => d.animalId == existingBirdId);
+            var deletedBird = _mockDatabase.allBirds.SingleOrDefault(d => d.Id == existingBirdId);
             Assert.IsNull(deletedBird);
         }
 

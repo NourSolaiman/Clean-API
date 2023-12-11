@@ -20,7 +20,7 @@ namespace Application.Commands.Dogs.UpdateDog
                 throw new InvalidOperationException("The list of dogs is not initialized.");
             }
 
-            Dog dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.animalId == request.Id)!;
+            Dog dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.Id == request.Id)!;
 
             if (dogToUpdate != null)
             {

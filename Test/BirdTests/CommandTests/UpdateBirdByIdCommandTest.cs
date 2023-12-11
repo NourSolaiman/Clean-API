@@ -23,13 +23,13 @@ namespace Application.Tests.Commands.Birds
         public async Task Handle_UpdatesBirdInDatabase()
         {
             // Arrange
-            var initialBird = new Bird { animalId = Guid.NewGuid(), Name = "InitialBirdName" };
+            var initialBird = new Bird { Id = Guid.NewGuid(), Name = "InitialBirdName" };
             _mockDatabase.allBirds.Add(initialBird);
 
             // Create an instance of UpdateBirdByIdCommand
             var command = new UpdateBirdByIdCommand(
                 updatedBird: new BirdDto { Name = "UpdatedBirdName" },
-                id: initialBird.animalId
+                id: initialBird.Id
             );
 
             // Act
@@ -43,7 +43,7 @@ namespace Application.Tests.Commands.Birds
             Assert.That(result.Name, Is.EqualTo("UpdatedBirdName"));
 
             // Check that the bird has been updated in MockDatabase
-            var updatedBirdInDatabase = _mockDatabase.allBirds.FirstOrDefault(bird => bird.animalId == command.Id);
+            var updatedBirdInDatabase = _mockDatabase.allBirds.FirstOrDefault(bird => bird.Id == command.Id);
             Assert.That(updatedBirdInDatabase, Is.Not.Null);
             Assert.That(updatedBirdInDatabase.Name, Is.EqualTo("UpdatedBirdName"));
         }

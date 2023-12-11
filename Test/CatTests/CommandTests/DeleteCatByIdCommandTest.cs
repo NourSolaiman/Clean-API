@@ -22,7 +22,7 @@ namespace Test.Cats.DeleteCat
         public async Task Handle_ExistingCatId_RemovesCatFromDatabase()
         {
             // Arrange
-            var existingCatId = _mockDatabase.allCats[0].animalId; // Assuming there's at least one cat in the mock database
+            var existingCatId = _mockDatabase.allCats[0].Id; // Assuming there's at least one cat in the mock database
 
             var command = new DeleteCatByIdCommand(existingCatId);
 
@@ -30,7 +30,7 @@ namespace Test.Cats.DeleteCat
             await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var deletedCat = _mockDatabase.allCats.SingleOrDefault(d => d.animalId == existingCatId);
+            var deletedCat = _mockDatabase.allCats.SingleOrDefault(d => d.Id == existingCatId);
             Assert.IsNull(deletedCat);
         }
 

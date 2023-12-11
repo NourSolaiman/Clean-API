@@ -16,7 +16,7 @@ namespace Application.Commands.Birds.AddBirds
         {
             Bird BirdToCreate = new()
             {
-                animalId = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 Name = request.NewBird.Name
             };
 
