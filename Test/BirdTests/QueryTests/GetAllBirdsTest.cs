@@ -1,5 +1,9 @@
 ﻿using Application.Queries.Birds.GetAllBirds;
+using Domain.Models;
 using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.BirdsTests.QueryTest
 {
@@ -7,20 +11,39 @@ namespace Test.BirdsTests.QueryTest
     public class GetAllBirdsTests
     {
         private GetAllBirdsQueryHandler _handler;
-        private MockDatabase _mockDatabase;
+        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new GetAllBirdsQueryHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new GetAllBirdsQueryHandler(_dbMockContext.Object);
+        }
+
+        protected void SetupMockDbContext(List<Bird> birds)
+        {
+            var mockDbSet = new Mock<DbSet<Bird>>();
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Provider).Returns(birds.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Expression).Returns(birds.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.ElementType).Returns(birds.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.GetEnumerator()).Returns(birds.GetEnumerator());
+
+            _dbMockContext.Setup(b => b.Birds).Returns(mockDbSet.Object);
         }
 
         [Test]
         public async Task Handle_ReturnsListOfBirds()
         {
-            // Arrange - In this case, since GetAllBirdss does not require any parameters, there's no need to set up specific data.
+            // Arrange
+            var birds = new List<Bird>
+            {
+                new Bird { Id = Guid.NewGuid(), Name = "Alex" },
+
+                new Bird { Id = Guid.NewGuid(), Name = "Max" }
+            };
+
+            SetupMockDbContext(birds);
 
             var query = new GetAllBirdsQuery();
 
@@ -29,8 +52,7 @@ namespace Test.BirdsTests.QueryTest
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsInstanceOf<List<Domain.Models.Bird>>(result); // Adjust this assertion based on the actual return type.
-            Assert.That(result.Count, Is.GreaterThan(0));
+            Assert.That(result.Count, Is.EqualTo(birds.Count));
         }
 
     }
