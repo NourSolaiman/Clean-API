@@ -1,20 +1,22 @@
 ﻿using Domain.Models;
 using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Queries.Birds.GetAllBirds
 {
     public class GetAllBirdsQueryHandler : IRequestHandler<GetAllBirdsQuery, List<Bird>>
     {
-        private readonly MockDatabase _mockDatabase;
-        public GetAllBirdsQueryHandler(MockDatabase mockDatabase)
+        private readonly caDBContext _caDBContext;
+        public GetAllBirdsQueryHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<List<Bird>> Handle(GetAllBirdsQuery request, CancellationToken cancellationToken)
         {
-            List<Bird> allBirdsFromMockDB = _mockDatabase.allBirds;
-            return Task.FromResult(allBirdsFromMockDB);
+            List<Bird> allBirdsFromDB = _caDBContext.Birds.ToList();
+            return Task.FromResult(allBirdsFromDB);
         }
     }
 }
