@@ -1,10 +1,8 @@
 ﻿using Application.Dtos;
+using Application.Queries.Users.GetUserByUserName;
 using Domain.Models;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace API.Controllers.AuthController
 {
@@ -14,12 +12,15 @@ namespace API.Controllers.AuthController
     {
         public static User user = new User();
         private readonly IConfiguration _configuration;
-        public AuthController(IConfiguration configuration)
+        private readonly IMediator _mediator;
+
+        public AuthController(IConfiguration configuration, IMediator mediator)
         {
             _configuration = configuration;
+            _mediator = mediator;
         }
 
-
+        /*
         [HttpPost("register")]
         public ActionResult<User> Register(UserDto request)
         {
@@ -30,10 +31,11 @@ namespace API.Controllers.AuthController
 
             return Ok(user);
         }
-
+        */
         [HttpPost("login")]
-        public ActionResult<User> Login(UserDto request)
+        public async Task<IActionResult> GetToken(string username, string password)
         {
+            /*
             if (user.Username != request.Username)
             {
                 return BadRequest("User not found");
@@ -43,32 +45,10 @@ namespace API.Controllers.AuthController
             {
                 return BadRequest("Password is wrong!");
             }
-            string token = GenerateJWTToken(user);
+            */
+            var token = await _mediator.Send(new GetUserByUserNameQuery(username, password));
+
             return Ok(token);
-        }
-
-
-        private string GenerateJWTToken(User user)
-        {
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, "Admin"),
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("JWTToken:Token").Value!));
-
-            Console.WriteLine(key.ToString());
-            var token = new JwtSecurityToken
-            (
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
-            );
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            return tokenHandler.WriteToken(token);
         }
     }
 }

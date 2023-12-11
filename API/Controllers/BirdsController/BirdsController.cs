@@ -69,7 +69,7 @@ namespace API.Controllers.BirdsController
         }
 
         // Create a new bird
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost]
         [Route("addNewBird")]
         [ProducesResponseType(typeof(BirdDto), StatusCodes.Status200OK)]
