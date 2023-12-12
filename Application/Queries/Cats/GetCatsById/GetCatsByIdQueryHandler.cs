@@ -1,19 +1,23 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Cats.GetAllCats.GetCatsById
 {
     public class GetCatByIdQueryHandler : IRequestHandler<GetCatByIdQuery, Cat>
     {
-        private readonly MockDatabase _mockDatabase;
-        public GetCatByIdQueryHandler(MockDatabase mockDatabase)
+        private readonly caDBContext _caDBContext;
+        public GetCatByIdQueryHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<Cat> Handle(GetCatByIdQuery request, CancellationToken cancellationToken)
         {
-            Cat wantedCat = _mockDatabase.allCats.Where(Cat => Cat.Id == request.Id).FirstOrDefault()!;
+            Cat wantedCat = _caDBContext.Cats.Where(Cat => Cat.Id == request.Id).FirstOrDefault()!;
+            if (wantedCat == null)
+            {
+                return Task.FromResult<Cat>(null!);
+            }
             return Task.FromResult(wantedCat);
         }
     }

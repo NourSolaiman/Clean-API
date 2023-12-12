@@ -1,5 +1,8 @@
 ﻿using Application.Cats.GetAllCats.GetCatsById;
-using Infrastructure.Database;
+using Domain.Models;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.CatTests.QueryTests
 {
@@ -7,14 +10,24 @@ namespace Test.CatTests.QueryTests
     public class GetCatByIdTests
     {
         private GetCatByIdQueryHandler _handler;
-        private MockDatabase _mockDatabase;
+        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new GetCatByIdQueryHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new GetCatByIdQueryHandler(_dbMockContext.Object);
+        }
+        protected void SetupMockDbContext(List<Cat> cats)
+        {
+            var mockDbSet = new Mock<DbSet<Cat>>();
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Provider).Returns(cats.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Expression).Returns(cats.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.ElementType).Returns(cats.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.GetEnumerator()).Returns(cats.GetEnumerator());
+
+            _dbMockContext.Setup(c => c.Cats).Returns(mockDbSet.Object);
         }
 
         [Test]
@@ -22,8 +35,12 @@ namespace Test.CatTests.QueryTests
         {
             // Arrange
             var catId = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5");
-
             var query = new GetCatByIdQuery(catId);
+            var cat = new List<Cat>
+            {
+                new Cat { Id = catId }
+            };
+            SetupMockDbContext(cat);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
@@ -38,7 +55,7 @@ namespace Test.CatTests.QueryTests
         {
             // Arrange
             var invalidCatId = Guid.NewGuid();
-
+            SetupMockDbContext(new List<Cat>());
             var query = new GetCatByIdQuery(invalidCatId);
 
             // Act
