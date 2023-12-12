@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Queries.Dogs.GetAllDogs
 {
-    public class GetAllDogsQuery : IRequest<List<Dog>>
-    {
-    }
+	public class GetAllDogsQuery : IRequest<List<Dog>>
+	{
+	}
 }

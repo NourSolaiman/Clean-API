@@ -7,19 +7,19 @@ using Moq;
 
 namespace Test.BirdTests.QueryTest
 {
-    [TestFixture]
-    public class GetBirdByIdTests
-    {
-        private GetBirdByIdQueryHandler _handler;
+	[TestFixture]
+	public class GetBirdByIdTests
+	{
+		private GetBirdByIdQueryHandler _handler;
 		private Mock<caDBContext> _dbMockContext;
 
 		[SetUp]
-        public void SetUp()
-        {
+		public void SetUp()
+		{
 			// Initialize the handler and mock database before each test
 			_dbMockContext = new Mock<caDBContext>();
 			_handler = new GetBirdByIdQueryHandler(_dbMockContext.Object);
-        }
+		}
 		protected void SetupMockDbContext(List<Bird> birds)
 		{
 			var mockDbSet = new Mock<DbSet<Bird>>();
@@ -32,10 +32,10 @@ namespace Test.BirdTests.QueryTest
 		}
 
 		[Test]
-        public async Task Handle_ValidId_ReturnsCorrectBird()
-        {
-            // Arrange
-            var birdId = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a");
+		public async Task Handle_ValidId_ReturnsCorrectBird()
+		{
+			// Arrange
+			var birdId = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a");
 
 			var bird = new List<Bird>
 			{
@@ -47,13 +47,13 @@ namespace Test.BirdTests.QueryTest
 			// Act
 			var result = await _handler.Handle(query, CancellationToken.None);
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.That(result.Id, Is.EqualTo(birdId));
-        }
+			// Assert
+			Assert.NotNull(result);
+			Assert.That(result.Id, Is.EqualTo(birdId));
+		}
 
-        [Test]
-        public async Task Handle_InvalidId_ReturnsNull()
+		[Test]
+		public async Task Handle_InvalidId_ReturnsNull()
 		{
 			// Arrange
 			var invalidBirdId = Guid.NewGuid();

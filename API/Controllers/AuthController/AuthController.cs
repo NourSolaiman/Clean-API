@@ -1,26 +1,25 @@
-﻿using Application.Dtos;
-using Application.Queries.Users.GetUserByUserName;
+﻿using Application.Queries.Users.GetUserByUserName;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.AuthController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
-    {
-        public static User user = new User();
-        private readonly IConfiguration _configuration;
-        private readonly IMediator _mediator;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class AuthController : ControllerBase
+	{
+		public static User user = new User();
+		private readonly IConfiguration _configuration;
+		private readonly IMediator _mediator;
 
-        public AuthController(IConfiguration configuration, IMediator mediator)
-        {
-            _configuration = configuration;
-            _mediator = mediator;
-        }
+		public AuthController(IConfiguration configuration, IMediator mediator)
+		{
+			_configuration = configuration;
+			_mediator = mediator;
+		}
 
-        /*
+		/*
         [HttpPost("register")]
         public ActionResult<User> Register(UserDto request)
         {
@@ -32,10 +31,10 @@ namespace API.Controllers.AuthController
             return Ok(user);
         }
         */
-        [HttpPost("login")]
-        public async Task<IActionResult> GetToken(string username, string password)
-        {
-            /*
+		[HttpPost("login")]
+		public async Task<IActionResult> GetToken(string username, string password)
+		{
+			/*
             if (user.Username != request.Username)
             {
                 return BadRequest("User not found");
@@ -46,9 +45,9 @@ namespace API.Controllers.AuthController
                 return BadRequest("Password is wrong!");
             }
             */
-            var token = await _mediator.Send(new GetUserByUserNameQuery(username, password));
+			var token = await _mediator.Send(new GetUserByUserNameQuery(username, password));
 
-            return Ok(token);
-        }
-    }
+			return Ok(token);
+		}
+	}
 }

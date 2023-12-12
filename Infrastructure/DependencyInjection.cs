@@ -3,7 +3,6 @@ using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Infrastructure
 {

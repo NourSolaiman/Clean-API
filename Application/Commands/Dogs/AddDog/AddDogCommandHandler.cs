@@ -4,25 +4,25 @@ using MediatR;
 
 namespace Application.Commands.Dogs.AddDog
 {
-    public class AddDogCommandHandler : IRequestHandler<AddDogCommand, Dog>
-    {
-        private readonly MockDatabase _mockDatabase;
+	public class AddDogCommandHandler : IRequestHandler<AddDogCommand, Dog>
+	{
+		private readonly MockDatabase _mockDatabase;
 
-        public AddDogCommandHandler(MockDatabase mockDatabase)
-        {
-            _mockDatabase = mockDatabase;
-        }
-        public Task<Dog> Handle(AddDogCommand request, CancellationToken cancellationToken)
-        {
-            Dog dogToCreate = new()
-            {
-                Id = Guid.NewGuid(),
-                Name = request.NewDog.Name
-            };
+		public AddDogCommandHandler(MockDatabase mockDatabase)
+		{
+			_mockDatabase = mockDatabase;
+		}
+		public Task<Dog> Handle(AddDogCommand request, CancellationToken cancellationToken)
+		{
+			Dog dogToCreate = new()
+			{
+				Id = Guid.NewGuid(),
+				Name = request.NewDog.Name
+			};
 
-            _mockDatabase.allDogs.Add(dogToCreate);
+			_mockDatabase.allDogs.Add(dogToCreate);
 
-            return Task.FromResult(dogToCreate);
-        }
-    }
+			return Task.FromResult(dogToCreate);
+		}
+	}
 }
