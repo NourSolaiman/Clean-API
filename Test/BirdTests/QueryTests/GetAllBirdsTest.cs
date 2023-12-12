@@ -1,13 +1,12 @@
 ﻿using Application.Queries.Birds.GetAllBirds;
 using Domain.Models;
-using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace Test.BirdsTests.QueryTest
 {
-    [TestFixture]
+	[TestFixture]
     public class GetAllBirdsTests
     {
         private GetAllBirdsQueryHandler _handler;
