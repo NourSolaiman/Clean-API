@@ -1,33 +1,35 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Commands.Birds.UpdateBird
 {
     public class UpdateBirdByIdCommandHandler : IRequestHandler<UpdateBirdByIdCommand, Bird>
     {
-        private readonly MockDatabase _mockDatabase;
-        public UpdateBirdByIdCommandHandler(MockDatabase mockDatabase)
+        private readonly caDBContext _caDBContext;
+        public UpdateBirdByIdCommandHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<Bird> Handle(UpdateBirdByIdCommand request, CancellationToken cancellationToken)
         {
-            // Check if _mockDatabase.allBirds is null before accessing it
-            if (_mockDatabase.allBirds == null)
-            {
-                // an exception or handle it appropriately based on my application logic
-                throw new InvalidOperationException("The list of birds is not initialized.");
-            }
-
-            Bird birdToUpdate = _mockDatabase.allBirds.FirstOrDefault(bird => bird.Id == request.Id)!;
+            Bird birdToUpdate = _caDBContext.Birds.FirstOrDefault(bird => bird.Id == request.Id)!;
 
             if (birdToUpdate != null)
             {
-                birdToUpdate.Name = request.UpdatedBird.Name;
-                birdToUpdate.CanFly = request.UpdatedBird.CanFly;
-            }
+                if (string.IsNullOrWhiteSpace(request.UpdatedBird.Name) || request.UpdatedBird.Name == "string")
+                {
+                    return Task.FromResult<Bird>(null!);
+                }
+                else
+                {
+                    birdToUpdate.Name = request.UpdatedBird.Name;
 
+                    return Task.FromResult(birdToUpdate);
+                }
+
+            }
             return Task.FromResult(birdToUpdate)!;
         }
     }
