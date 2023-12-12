@@ -1,6 +1,5 @@
 ﻿using Application.Queries.Birds.GetAllBirds;
 using Domain.Models;
-using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using Microsoft.EntityFrameworkCore;
 using Moq;

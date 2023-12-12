@@ -1,5 +1,4 @@
-﻿using Application.Dtos;
-using Application.Queries.Users.GetUserByUserName;
+﻿using Application.Queries.Users.GetUserByUserName;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

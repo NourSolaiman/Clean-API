@@ -1,8 +1,6 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Queries.Birds.GetAllBirds
 {

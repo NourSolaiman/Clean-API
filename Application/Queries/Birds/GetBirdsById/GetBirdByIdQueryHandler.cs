@@ -1,20 +1,20 @@
 ﻿using Application.Queries.Birds.GetBirdsById;
 using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Queries.Birds.GetBirdById
 {
     public class GetBirdByIdQueryHandler : IRequestHandler<GetBirdByIdQuery, Bird>
     {
-        private readonly MockDatabase _mockDatabase;
-        public GetBirdByIdQueryHandler(MockDatabase mockDatabase)
+        private readonly caDBContext _caDBContext;
+        public GetBirdByIdQueryHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<Bird> Handle(GetBirdByIdQuery request, CancellationToken cancellationToken)
         {
-            Bird wantedBird = _mockDatabase.allBirds.Where(Bird => Bird.Id == request.Id).FirstOrDefault()!;
+            Bird wantedBird = _caDBContext.Birds.Where(Bird => Bird.Id == request.Id).FirstOrDefault()!;
             return Task.FromResult(wantedBird);
         }
     }
