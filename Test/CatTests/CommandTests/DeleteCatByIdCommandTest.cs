@@ -1,6 +1,9 @@
 ﻿using Application.Cats.DeleteCat.DeleteCat;
 using Application.Commands.Cats.DeleteCat;
-using Infrastructure.Database;
+using Domain.Models;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.Cats.DeleteCat
 {
@@ -8,41 +11,65 @@ namespace Test.Cats.DeleteCat
     public class DeleteCatByIdCommandTest
     {
         private DeleteCatByIdCommandHandler _handler;
-        private MockDatabase _mockDatabase;
+        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new DeleteCatByIdCommandHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new DeleteCatByIdCommandHandler(_dbMockContext.Object);
+        }
+        protected void SetupMockDbContext(List<Cat> cats)
+        {
+            var mockDbSet = new Mock<DbSet<Cat>>();
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Provider).Returns(cats.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Expression).Returns(cats.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.ElementType).Returns(cats.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.GetEnumerator()).Returns(cats.GetEnumerator());
+
+            _dbMockContext.Setup(c => c.Cats).Returns(mockDbSet.Object);
         }
 
         [Test]
-        public async Task Handle_ExistingCatId_RemovesCatFromDatabase()
+        public async Task Handle_ValidId_DeletesCat()
         {
             // Arrange
-            var existingCatId = _mockDatabase.allCats[0].Id; // Assuming there's at least one cat in the mock database
+            var catId = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5");
+            var cat = new List<Cat>
+            {
+                new Cat
+                {
+                    Id = catId
+                }
+            };
+            SetupMockDbContext(cat);
 
-            var command = new DeleteCatByIdCommand(existingCatId);
+            var command = new DeleteCatByIdCommand(catId);
 
             // Act
-            await _handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var deletedCat = _mockDatabase.allCats.SingleOrDefault(d => d.Id == existingCatId);
-            Assert.IsNull(deletedCat);
+            Assert.NotNull(result);
+            Assert.That(result.Id, Is.EqualTo(catId));
         }
 
         [Test]
-        public void Handle_NonExistingCatId_ThrowException()
+        public async Task Handle_InvalidId_ReturnNull()
         {
             // Arrange
-            var nonExistingCatId = Guid.NewGuid();
-            var command = new DeleteCatByIdCommand(nonExistingCatId);
+            var invalidCatId = Guid.NewGuid();
+            var cat = new List<Cat>();
+            SetupMockDbContext(cat);
 
-            // Act and Assert
-            Assert.Throws<Exception>(() => _handler.Handle(command, CancellationToken.None));
+            var command = new DeleteCatByIdCommand(invalidCatId);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            Assert.IsNull(result);
         }
 
     }

@@ -1,26 +1,32 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Commands.Cats.AddCats
 {
     public class AddCatCommandHandler : IRequestHandler<AddCatCommand, Cat>
     {
-        private readonly MockDatabase _mockDatabase;
+        private readonly caDBContext _caDBContext;
 
-        public AddCatCommandHandler(MockDatabase mockDatabase)
+        public AddCatCommandHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<Cat> Handle(AddCatCommand request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.NewCat.Name) || request.NewCat.Name == "string")
+            {
+                return Task.FromResult<Cat>(null!);
+            }
             Cat CatToCreate = new()
             {
                 Id = Guid.NewGuid(),
-                Name = request.NewCat.Name
+                Name = request.NewCat.Name,
+                LikesToPlay = request.NewCat.LikesToPlay
+
             };
 
-            _mockDatabase.allCats.Add(CatToCreate);
+            _caDBContext.Cats.Add(CatToCreate);
 
             return Task.FromResult(CatToCreate);
         }

@@ -1,27 +1,28 @@
 ﻿using Application.Commands.Cats.DeleteCat;
 using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Cats.DeleteCat.DeleteCat
 {
     public class DeleteCatByIdCommandHandler : IRequestHandler<DeleteCatByIdCommand, Cat>
     {
-        private readonly MockDatabase _mockDatabase;
-        public DeleteCatByIdCommandHandler(MockDatabase mockDatabase)
+        private readonly caDBContext _caDBContext;
+        public DeleteCatByIdCommandHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
 
         public Task<Cat> Handle(DeleteCatByIdCommand request, CancellationToken cancellationToken)
         {
-            Cat catToDelete = _mockDatabase.allCats.FirstOrDefault(cat => cat.Id == request.DeletedCatId)!;
+            Cat catToDelete = _caDBContext.Cats.FirstOrDefault(cat => cat.Id == request.DeletedCatId)!;
 
-            if (catToDelete == null)
+            if (catToDelete != null)
             {
-                throw new Exception("There is no cat with this ID");
+                _caDBContext.Cats.Remove(catToDelete);
+                return Task.FromResult(catToDelete);
             }
-            _mockDatabase.allCats.Remove(catToDelete);
+            // Cat not found
             return Task.FromResult(catToDelete)!;
         }
     }
