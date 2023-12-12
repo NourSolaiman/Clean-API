@@ -15,6 +15,10 @@ namespace Application.Queries.Birds.GetBirdById
         public Task<Bird> Handle(GetBirdByIdQuery request, CancellationToken cancellationToken)
         {
             Bird wantedBird = _caDBContext.Birds.Where(Bird => Bird.Id == request.Id).FirstOrDefault()!;
+            if (wantedBird == null)
+            {
+                return Task.FromResult<Bird>(null!);
+            }
             return Task.FromResult(wantedBird);
         }
     }
