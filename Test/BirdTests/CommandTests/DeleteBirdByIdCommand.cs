@@ -1,6 +1,9 @@
 ﻿using Application.Birds.DeleteBird.DeleteBird;
 using Application.Commands.Birds.DeleteBird;
-using Infrastructure.Database;
+using Domain.Models;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.Birds.DeleteBird
 {
@@ -8,42 +11,64 @@ namespace Test.Birds.DeleteBird
     public class DeleteBirdByIdCommandTest
     {
         private DeleteBirdByIdCommandHandler _handler;
-        private MockDatabase _mockDatabase;
+        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new DeleteBirdByIdCommandHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new DeleteBirdByIdCommandHandler(_dbMockContext.Object);
         }
+        protected void SetupMockDbContext(List<Bird> birds)
+        {
+            var mockDbSet = new Mock<DbSet<Bird>>();
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Provider).Returns(birds.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Expression).Returns(birds.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.ElementType).Returns(birds.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.GetEnumerator()).Returns(birds.GetEnumerator());
 
+            _dbMockContext.Setup(b => b.Birds).Returns(mockDbSet.Object);
+        }
         [Test]
-        public async Task Handle_ExistingBirdId_RemovesBirdFromDatabase()
+        public async Task Handle_ValidId_RemovesBirdFromDatabase()
         {
             // Arrange
-            var existingBirdId = _mockDatabase.allBirds[0].Id; // Assuming there's at least one bird in the mock database
+            var birdId = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a");
+            var bird = new List<Bird>
+            {
+                new Bird
+                {
+                    Id = birdId
+                }
+            };
+            SetupMockDbContext(bird);
 
-            var command = new DeleteBirdByIdCommand(existingBirdId);
+            var command = new DeleteBirdByIdCommand(birdId);
 
             // Act
-            await _handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var deletedBird = _mockDatabase.allBirds.SingleOrDefault(d => d.Id == existingBirdId);
-            Assert.IsNull(deletedBird);
+            Assert.NotNull(result);
+            Assert.That(result.Id, Is.EqualTo(birdId));
         }
 
         [Test]
-        public void Handle_NonExistingBirdId_DoesNotThrowException()
+        public async Task Handle_InvalidId_DoesNothing()
         {
             // Arrange
-            var nonExistingBirdId = Guid.NewGuid();
+            var invalidBirdId = Guid.NewGuid();
+            var bird = new List<Bird>();
+            SetupMockDbContext(bird);
 
-            var command = new DeleteBirdByIdCommand(nonExistingBirdId);
+            var command = new DeleteBirdByIdCommand(invalidBirdId);
 
-            // Act and Assert
-            Assert.DoesNotThrow(() => _handler.Handle(command, CancellationToken.None));
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            Assert.IsNull(result);
         }
 
     }
