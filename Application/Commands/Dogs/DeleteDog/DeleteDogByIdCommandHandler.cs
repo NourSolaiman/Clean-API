@@ -19,6 +19,7 @@ namespace Application.Commands.Dogs.DeleteDog
             if (dogToDelete != null)
             {
                 _caDBContext.Dogs.Remove(dogToDelete);
+                _caDBContext.SaveChangesAsync();
                 return Task.FromResult(dogToDelete);
 
             }

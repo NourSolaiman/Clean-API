@@ -20,6 +20,7 @@ namespace Application.Birds.DeleteBird.DeleteBird
             if (birdToDelete != null)
             {
                 _caDBContext.Birds.Remove(birdToDelete);
+                _caDBContext.SaveChangesAsync();
                 return Task.FromResult(birdToDelete);
             }
             // Bird not found
