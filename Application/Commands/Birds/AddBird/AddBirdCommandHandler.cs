@@ -1,6 +1,7 @@
 ﻿using Domain.Models;
 using Infrastructure.Database.MySQLDatabase;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Commands.Birds.AddBirds
 {
@@ -27,7 +28,7 @@ namespace Application.Commands.Birds.AddBirds
                     CanFly = request.NewBird.CanFly,
                 };
                 _caDBContext.Birds.Add(BirdToCreate);
-
+                _caDBContext.SaveChangesAsync();
                 return Task.FromResult(BirdToCreate);
 
             }

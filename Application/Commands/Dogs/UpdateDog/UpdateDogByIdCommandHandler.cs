@@ -24,6 +24,7 @@ namespace Application.Commands.Dogs.UpdateDog
                 else
                 {
                     dogToUpdate.Name = request.UpdatedDog.Name;
+                    _caDBContext.SaveChangesAsync();
                 }
             }
             return Task.FromResult(dogToUpdate)!;

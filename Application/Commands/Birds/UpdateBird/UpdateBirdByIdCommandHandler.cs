@@ -25,10 +25,9 @@ namespace Application.Commands.Birds.UpdateBird
                 else
                 {
                     birdToUpdate.Name = request.UpdatedBird.Name;
-
+                    _caDBContext.SaveChangesAsync();
                     return Task.FromResult(birdToUpdate);
                 }
-
             }
             return Task.FromResult(birdToUpdate)!;
         }

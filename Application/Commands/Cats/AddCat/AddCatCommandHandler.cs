@@ -27,7 +27,7 @@ namespace Application.Commands.Cats.AddCats
             };
 
             _caDBContext.Cats.Add(CatToCreate);
-
+            _caDBContext.SaveChangesAsync();
             return Task.FromResult(CatToCreate);
         }
     }

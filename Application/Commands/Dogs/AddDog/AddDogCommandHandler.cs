@@ -26,7 +26,7 @@ namespace Application.Commands.Dogs.AddDog
                     Name = request.NewDog.Name
                 };
                 _caDBContext.Dogs.Add(dogToCreate);
-
+                _caDBContext.SaveChangesAsync();
                 return Task.FromResult(dogToCreate);
             }
         }

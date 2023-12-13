@@ -20,6 +20,7 @@ namespace Application.Cats.DeleteCat.DeleteCat
             if (catToDelete != null)
             {
                 _caDBContext.Cats.Remove(catToDelete);
+                _caDBContext.SaveChangesAsync();
                 return Task.FromResult(catToDelete);
             }
             // Cat not found
