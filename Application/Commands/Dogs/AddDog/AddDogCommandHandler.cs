@@ -1,28 +1,34 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Commands.Dogs.AddDog
 {
     public class AddDogCommandHandler : IRequestHandler<AddDogCommand, Dog>
     {
-        private readonly MockDatabase _mockDatabase;
+        private readonly caDBContext _caDBContext;
 
-        public AddDogCommandHandler(MockDatabase mockDatabase)
+        public AddDogCommandHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<Dog> Handle(AddDogCommand request, CancellationToken cancellationToken)
         {
-            Dog dogToCreate = new()
+            if (string.IsNullOrWhiteSpace(request.NewDog.Name) || request.NewDog.Name == "string")
             {
-                Id = Guid.NewGuid(),
-                Name = request.NewDog.Name
-            };
+                return Task.FromResult<Dog>(null!);
+            }
+            else
+            {
+                Dog dogToCreate = new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.NewDog.Name
+                };
+                _caDBContext.Dogs.Add(dogToCreate);
 
-            _mockDatabase.allDogs.Add(dogToCreate);
-
-            return Task.FromResult(dogToCreate);
+                return Task.FromResult(dogToCreate);
+            }
         }
     }
 }
