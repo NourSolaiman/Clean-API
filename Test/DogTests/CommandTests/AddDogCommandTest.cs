@@ -1,6 +1,9 @@
 ﻿using Application.Commands.Dogs.AddDog;
 using Application.Dtos;
-using Infrastructure.Database;
+using Domain.Models;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.DogTests.CommandTest
 {
@@ -8,34 +11,53 @@ namespace Test.DogTests.CommandTest
     public class AddDogCommandTest
     {
         private AddDogCommandHandler _handler;
-        private MockDatabase _mockDatabase;
-
+        private Mock<caDBContext> _dbMockContext;
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new AddDogCommandHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new AddDogCommandHandler(_dbMockContext.Object);
+        }
+
+        protected void SetupMockDbContext(List<Dog> dogs)
+        {
+            var mockDbSet = new Mock<DbSet<Dog>>();
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
+
+            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
         }
 
         [Test]
-        public async Task Handle_ValidDogData_AddsDogToDatabase()
+        public async Task Handle_ValidCommand_AddNewDog()
         {
             // Arrange
-            var dogToAdd = new DogDto
-            {
-                Name = "Alfredo",
-            };
+            var dogs = new List<Dog>();
+            SetupMockDbContext(dogs);
 
-            var command = new AddDogCommand(dogToAdd);
+            var command = new AddDogCommand(new DogDto { Name = "NewDog" });
 
             // Act
-            await _handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var addedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.Name == dogToAdd.Name);
-            Assert.NotNull(addedDog);
-            Assert.That(addedDog.Name, Is.EqualTo(dogToAdd.Name));
+            Assert.That(result.Name, Is.EqualTo("NewDog"));
+        }
+
+        [Test]
+        public async Task Handle_InValidCommand_ReturnNull()
+        {
+            // Arrange
+            var command = new AddDogCommand(new DogDto { Name = "" });
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            Assert.IsNull(result);
         }
     }
 }

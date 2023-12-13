@@ -1,32 +1,31 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Commands.Dogs.UpdateDog
 {
     public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Dog>
     {
-        private readonly MockDatabase _mockDatabase;
-        public UpdateDogByIdCommandHandler(MockDatabase mockDatabase)
+        private readonly caDBContext _caDBContext;
+        public UpdateDogByIdCommandHandler(caDBContext caDBContext)
         {
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
         public Task<Dog> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
         {
-            // Check if _mockDatabase.allDogs is null before accessing it
-            if (_mockDatabase.allDogs == null)
-            {
-                // You might want to throw an exception or handle it appropriately based on your application logic
-                throw new InvalidOperationException("The list of dogs is not initialized.");
-            }
-
-            Dog dogToUpdate = _mockDatabase.allDogs.FirstOrDefault(dog => dog.Id == request.Id)!;
-
+            Dog dogToUpdate = _caDBContext.Dogs.FirstOrDefault(dog => dog.Id == request.Id)!;
+            // Check if _caDBContext.Dogs is null before accessing it
             if (dogToUpdate != null)
             {
-                dogToUpdate.Name = request.UpdatedDog.Name;
+                if (string.IsNullOrWhiteSpace(request.UpdatedDog.Name) || request.UpdatedDog.Name == "string")
+                {
+                    return Task.FromResult<Dog>(null!);
+                }
+                else
+                {
+                    dogToUpdate.Name = request.UpdatedDog.Name;
+                }
             }
-
             return Task.FromResult(dogToUpdate)!;
         }
     }

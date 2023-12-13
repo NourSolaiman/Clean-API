@@ -1,5 +1,8 @@
 ﻿using Application.Commands.Dogs.DeleteDog;
-using Infrastructure.Database;
+using Domain.Models;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.DogTests.CommandTest
 {
@@ -7,43 +10,64 @@ namespace Test.DogTests.CommandTest
     public class DeleteDogByIdCommandTest
     {
         private DeleteDogByIdCommandHandler _handler;
-        private MockDatabase _mockDatabase;
+        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new DeleteDogByIdCommandHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new DeleteDogByIdCommandHandler(_dbMockContext.Object);
+        }
+        protected void SetupMockDbContext(List<Dog> dogs)
+        {
+            var mockDbSet = new Mock<DbSet<Dog>>();
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
+
+            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
         }
 
         [Test]
-        public async Task Handle_ExistingDogId_RemovesDogFromDatabase()
+        public async Task Handle_ValidId_DeletesDog()
         {
             // Arrange
-            var existingDogId = _mockDatabase.allDogs[0].Id; // Assuming there's at least one dog in the mock database
-
-            var command = new DeleteDogByIdCommand(existingDogId);
+            var dogId = new Guid("12345678-1234-5678-1234-567812345678");
+            var dog = new List<Dog>
+            {
+                new Dog
+                {
+                    Id = dogId
+                }
+            };
+            SetupMockDbContext(dog);
+            var command = new DeleteDogByIdCommand(dogId);
 
             // Act
-            await _handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var deletedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.Id == existingDogId);
-            Assert.IsNull(deletedDog);
+            Assert.NotNull(result);
+            Assert.That(result.Id, Is.EqualTo(dogId));
         }
 
         [Test]
-        public void Handle_NonExistingDogId_DoesNotThrowException()
+        public async Task Handle_InvalidId_DoesNothing()
         {
             // Arrange
-            var nonExistingDogId = Guid.NewGuid();
+            var invalidDogId = Guid.NewGuid();
+            var dog = new List<Dog>();
+            SetupMockDbContext(dog);
 
-            var command = new DeleteDogByIdCommand(nonExistingDogId);
+            var command = new DeleteDogByIdCommand(invalidDogId);
 
-            // Act and Assert
-            Assert.DoesNotThrow(() => _handler.Handle(command, CancellationToken.None));
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            Assert.IsNull(result);
         }
-
     }
 }

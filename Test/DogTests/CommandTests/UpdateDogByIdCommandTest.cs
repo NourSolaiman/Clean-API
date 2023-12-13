@@ -1,6 +1,11 @@
-﻿using Application.Commands.Dogs.UpdateDog;
+﻿using Application.Commands.Dogs.DeleteDog;
+using Application.Commands.Dogs.UpdateDog;
 using Application.Dtos;
+using Domain.Models;
 using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace Test.DogTests.CommandTest
 {
@@ -8,57 +13,77 @@ namespace Test.DogTests.CommandTest
     public class UpdateDogByIdCommandTest
     {
         private UpdateDogByIdCommandHandler _handler;
-        private MockDatabase _mockDatabase;
+        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
             // Initialize the handler and mock database before each test
-            _mockDatabase = new MockDatabase();
-            _handler = new UpdateDogByIdCommandHandler(_mockDatabase);
+            _dbMockContext = new Mock<caDBContext>();
+            _handler = new UpdateDogByIdCommandHandler(_dbMockContext.Object);
+        }
+        protected void SetupMockDbContext(List<Dog> dogs)
+        {
+            var mockDbSet = new Mock<DbSet<Dog>>();
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
+
+            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
         }
 
         [Test]
-        public async Task Handle_ExistingDogId_UpdatesDogInDatabase()
+        public async Task Handle_ValidId_UpdatesDog()
         {
             // Arrange
-            var existingDogId = _mockDatabase.allDogs[0].Id;
-            var initialDogName = _mockDatabase.allDogs[0].Name;
-
-            var updatedDogDto = new DogDto
+            var dogId = new Guid("12345678-1234-5678-1234-567812345678");
+            var dogsList = new List<Dog>
             {
-                Id = existingDogId,
-                Name = "Fofi",
+                new Dog
+                {
+                    Id = dogId,
+                    Name = "Nelson",
+                }
             };
+            SetupMockDbContext(dogsList);
 
-            var command = new UpdateDogByIdCommand(existingDogId, updatedDogDto);
+            var updatedDog = new DogDto { Name = "NewDogName" };
+
+            var command = new UpdateDogByIdCommand(updatedDog, dogId);
 
             // Act
-            await _handler.Handle(command, default);
+            await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            var updatedDog = _mockDatabase.allDogs.SingleOrDefault(d => d.Id == existingDogId);
-            Assert.NotNull(updatedDog);
-            // Assert that the names match
-            Assert.That(updatedDog.Name, Is.EqualTo(updatedDogDto.Name));
+            Assert.That(updatedDog.Name, Is.EqualTo(command.UpdatedDog.Name));
         }
 
         [Test]
-        public void Handle_NonExistingDogId_DoesNotThrowException()
+        public async Task Handle_InvalidId_ReturnNull()
         {
             // Arrange
-            var nonExistingDogId = Guid.NewGuid();
-
-            var updatedDogDto = new DogDto
+            var invalidDogId = Guid.NewGuid();
+            var dogsList = new List<Dog>
             {
-                Id = nonExistingDogId,
-                Name = "UpdatedDogName",
+                new Dog
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Nemar",
+                }
             };
+            SetupMockDbContext(dogsList);
 
-            var command = new UpdateDogByIdCommand(nonExistingDogId, updatedDogDto);
+            var updatedDog = new DogDto { Name = "NewDogName" };
 
-            // Act and Assert
-            Assert.DoesNotThrow(() => _handler.Handle(command, default));
+            var command = new UpdateDogByIdCommand(updatedDog, invalidDogId);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            Assert.IsNull(result);
         }
+
     }
 }
