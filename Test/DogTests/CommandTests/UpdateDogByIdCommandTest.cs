@@ -1,8 +1,6 @@
-﻿using Application.Commands.Dogs.DeleteDog;
-using Application.Commands.Dogs.UpdateDog;
-using Application.Dtos;
+﻿using Application.Commands.Dogs.UpdateDog;
+using Application.Dtos.Animals;
 using Domain.Models;
-using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using Microsoft.EntityFrameworkCore;
 using Moq;

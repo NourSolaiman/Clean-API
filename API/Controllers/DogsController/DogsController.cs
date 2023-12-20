@@ -1,7 +1,7 @@
 ﻿using Application.Commands.Dogs.AddDog;
 using Application.Commands.Dogs.DeleteDog;
 using Application.Commands.Dogs.UpdateDog;
-using Application.Dtos;
+using Application.Dtos.Animals;
 using Application.Queries.Dogs.GetAllDogs;
 using Application.Queries.Dogs.GetDogById;
 using Application.Validators.Dog;

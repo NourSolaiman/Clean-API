@@ -14,7 +14,7 @@ var key = Encoding.ASCII.GetBytes(jwtsettings["Token"]!);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -42,7 +42,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddApplication().AddInfrastructure();
-
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -59,6 +58,18 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
     };
 });
+
+//Test
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy =>
+    {
+        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+});
+//TestEnds
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

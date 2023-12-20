@@ -2,7 +2,7 @@
 using Application.Commands.Cats.AddCats;
 using Application.Commands.Cats.DeleteCat;
 using Application.Commands.Cats.UpdateCat;
-using Application.Dtos;
+using Application.Dtos.Animals;
 using Application.Queries.Cats.GetAllCats;
 using Application.Validators.Cat;
 using Application.Validators.GuidValidation;

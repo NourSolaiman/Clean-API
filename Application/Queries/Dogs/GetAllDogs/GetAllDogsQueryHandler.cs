@@ -1,5 +1,4 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 

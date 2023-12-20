@@ -1,31 +1,35 @@
 ﻿using Domain.Models;
-using Infrastructure.Database;
+using Infrastructure.Database.MySQLDatabase;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Repositories.Authorization
+namespace Infrastructure.Authentication.Authorization
 {
-    public class AuthRepository
+    public class AuthRepository : IAuthRepository
     {
         private readonly IConfiguration _configuration;
-        private readonly MockDatabase _mockDatabase;
+        private readonly caDBContext _caDBContext;
 
-        public AuthRepository(IConfiguration configuration, MockDatabase mockDatabase)
+        public AuthRepository(IConfiguration configuration, caDBContext caDBContext)
         {
             _configuration = configuration;
-            _mockDatabase = mockDatabase;
+            _caDBContext = caDBContext;
         }
 
         public User AuthenticateUser(string username, string password)
         {
-            var user = _mockDatabase.Users.FirstOrDefault(u => u.Username == username && u.PasswordHash == password);
+            var user = _caDBContext.Users.FirstOrDefault(u => u.Username == username && u.PasswordHash == password);
 
             if (user == null)
             {
                 throw new Exception("User not found");
+            }
+            if (!VerifyPasswordHash(password, user.PasswordHash))
+            {
+                throw new Exception("Invalid password");
             }
             return user;
         }
@@ -50,6 +54,24 @@ namespace Infrastructure.Repositories.Authorization
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+        private string GetUserRoles(User user)
+        {
+            // Check if the username is "admin" (case-insensitive) and assign the "Admin" role
+            if (user.Username.ToUpperInvariant() == "ADMIN")
+            {
+                return "Admin";
+            }
+            else
+            {
+                return "User";
+            }
+        }
+
+        private bool VerifyPasswordHash(string password, string storedHash)
+        {
+            // Use BCrypt to verify the password hash
+            return BCrypt.Net.BCrypt.Verify(password, storedHash);
         }
     }
 }

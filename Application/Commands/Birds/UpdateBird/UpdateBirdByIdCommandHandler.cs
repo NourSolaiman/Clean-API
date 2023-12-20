@@ -1,7 +1,6 @@
 ﻿using Domain.Models;
 using Infrastructure.Database.MySQLDatabase;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Commands.Birds.UpdateBird
 {

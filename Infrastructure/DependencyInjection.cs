@@ -1,6 +1,10 @@
-﻿using Infrastructure.Authentication;
+﻿using Infrastructure.Authentication.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Birds;
+using Infrastructure.Repositories.Cats;
+using Infrastructure.Repositories.Dogs;
+using Infrastructure.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +15,12 @@ namespace Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddSingleton<MockDatabase>();
-            services.AddSingleton<JWTTokenGenerator>();
+            services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IDogRepository, DogRepository>();
+            services.AddScoped<IBirdRepository, BirdRepository>();
+            services.AddScoped<ICatRepository, CatRepository>();
+            //services.AddSingleton<JWTTokenGenerator>();
             services.AddDbContext<caDBContext>(options =>
             {
                 //connectionString to Db

@@ -28,6 +28,10 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("CanFly")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -39,33 +43,45 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ec351eb4-fdb8-42fb-ba13-ea797b4cce17"),
+                            Id = new Guid("92eb2daa-8a56-4580-af4f-d1c0177c08f8"),
                             CanFly = true,
+                            Color = "",
                             Name = "Robin"
                         },
                         new
                         {
-                            Id = new Guid("2ce18000-396d-41cb-955f-770b7940fe78"),
+                            Id = new Guid("59d035bb-53b5-4bb4-a69e-3ab00b446bdf"),
                             CanFly = true,
+                            Color = "",
                             Name = "Sparrow"
                         },
                         new
                         {
-                            Id = new Guid("84bedb48-16cd-4829-99bd-dc888b476c97"),
+                            Id = new Guid("c632f334-9c08-4961-b523-e4dd5fc48150"),
                             CanFly = true,
+                            Color = "",
                             Name = "Birdy"
                         },
                         new
                         {
-                            Id = new Guid("1ef3c1f4-a313-4448-b3e5-aadf55b3d7f5"),
+                            Id = new Guid("dcf4f387-6d9f-4999-a61e-b4d879f59edf"),
                             CanFly = false,
+                            Color = "",
                             Name = "Herdy"
                         },
                         new
                         {
-                            Id = new Guid("c529eead-435c-4a3f-a8f5-a3639fc9be65"),
+                            Id = new Guid("fc48da49-c140-42fc-bb5b-f52a1839d415"),
                             CanFly = true,
+                            Color = "",
                             Name = "Gerdy"
+                        },
+                        new
+                        {
+                            Id = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a"),
+                            CanFly = false,
+                            Color = "",
+                            Name = "TestBirdForUnitTests"
                         });
                 });
 
@@ -75,12 +91,23 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Breed")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<bool>("LikesToPlay")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Weight")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -89,33 +116,57 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d30ae68e-5bed-4b73-9527-30f6378989da"),
+                            Id = new Guid("9f567f68-fb83-4e94-8fd0-aaf24a1130ad"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = true,
-                            Name = "Fluffy"
+                            Name = "Fluffy",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("5886fa40-a54e-4c8d-8612-48cf983b2bde"),
+                            Id = new Guid("04cf4d4a-57f7-4530-bab2-8663e06d9168"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "Whiskers"
+                            Name = "Whiskers",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("9dd335d5-a8d4-44b9-96e9-cd35d35d0f69"),
+                            Id = new Guid("fa89151f-1a7d-47d1-86a2-4ad5dbbc0a22"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "Lickers"
+                            Name = "Lickers",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("f840a52f-207c-4741-9f3f-f3bfac0c4cf4"),
+                            Id = new Guid("405bb583-0f6e-4927-9274-75636da50e11"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = true,
-                            Name = "Sickers"
+                            Name = "Sickers",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("282136bf-ed11-4eaa-95ac-5fe8e2ecd7f8"),
+                            Id = new Guid("5318f313-7ebc-43e4-b32a-f9e1dfe9365d"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "Fluffers"
+                            Name = "Fluffers",
+                            Weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5"),
+                            Breed = "",
+                            Color = "",
+                            LikesToPlay = false,
+                            Name = "TestCatForUnitTests",
+                            Weight = 0
                         });
                 });
 
@@ -125,12 +176,23 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Breed")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<bool>("LikesToPlay")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Weight")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -139,27 +201,48 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c555e635-f270-4ea9-a1a7-86486bf48176"),
+                            Id = new Guid("9f3c2364-8955-4f73-9dfc-ab21a82797e7"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "PeppeLeDog"
+                            Name = "PeppeLeDog",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("dae7919a-9e55-4484-a567-31edd78379e7"),
+                            Id = new Guid("78f464db-9946-43d8-93a1-bfb95b0e1338"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "Fofi"
+                            Name = "Fofi",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("804577a8-7271-4fa3-96db-62d287dd42ac"),
+                            Id = new Guid("583d2d49-3e37-44bd-85e5-8ede3f511a6c"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "Simo"
+                            Name = "Simo",
+                            Weight = 0
                         },
                         new
                         {
-                            Id = new Guid("3344e313-83f8-49c5-8c3f-0176cd5bfdb9"),
+                            Id = new Guid("ec9ffb12-9f87-450d-b7de-4fbaf91d43dc"),
+                            Breed = "",
+                            Color = "",
                             LikesToPlay = false,
-                            Name = "Lano"
+                            Name = "Lano",
+                            Weight = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("12345678-1234-5678-1234-567812345678"),
+                            Breed = "",
+                            Color = "",
+                            LikesToPlay = false,
+                            Name = "TestDogForUnitTests",
+                            Weight = 0
                         });
                 });
 
@@ -180,6 +263,132 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Domain.Models.UserBird", b =>
+                {
+                    b.Property<Guid>("BirdId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("BirdId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserBird");
+                });
+
+            modelBuilder.Entity("Domain.Models.UserCat", b =>
+                {
+                    b.Property<Guid>("CatId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("CatId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserCat");
+                });
+
+            modelBuilder.Entity("Domain.Models.UserDog", b =>
+                {
+                    b.Property<Guid>("DogId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("DogId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDog");
+                });
+
+            modelBuilder.Entity("Domain.Models.UserBird", b =>
+                {
+                    b.HasOne("Domain.Models.Bird", "Bird")
+                        .WithMany("UserBird")
+                        .HasForeignKey("BirdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany("UserBird")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bird");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.UserCat", b =>
+                {
+                    b.HasOne("Domain.Models.Cat", "Cat")
+                        .WithMany("UserCat")
+                        .HasForeignKey("CatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany("UserCat")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cat");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.UserDog", b =>
+                {
+                    b.HasOne("Domain.Models.Dog", "Dog")
+                        .WithMany("UserDog")
+                        .HasForeignKey("DogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany("UserDog")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dog");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.Bird", b =>
+                {
+                    b.Navigation("UserBird");
+                });
+
+            modelBuilder.Entity("Domain.Models.Cat", b =>
+                {
+                    b.Navigation("UserCat");
+                });
+
+            modelBuilder.Entity("Domain.Models.Dog", b =>
+                {
+                    b.Navigation("UserDog");
+                });
+
+            modelBuilder.Entity("Domain.Models.User", b =>
+                {
+                    b.Navigation("UserBird");
+
+                    b.Navigation("UserCat");
+
+                    b.Navigation("UserDog");
                 });
 #pragma warning restore 612, 618
         }

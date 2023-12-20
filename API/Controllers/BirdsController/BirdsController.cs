@@ -1,7 +1,7 @@
 ﻿using Application.Commands.Birds.AddBirds;
 using Application.Commands.Birds.DeleteBird;
 using Application.Commands.Birds.UpdateBird;
-using Application.Dtos;
+using Application.Dtos.Animals;
 using Application.Queries.Birds.GetAllBirds;
 using Application.Queries.Birds.GetBirdsById;
 using Application.Validators.Bird;

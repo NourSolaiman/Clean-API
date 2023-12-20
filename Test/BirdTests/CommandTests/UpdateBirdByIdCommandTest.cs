@@ -1,5 +1,5 @@
 ﻿using Application.Commands.Birds.UpdateBird;
-using Application.Dtos;
+using Application.Dtos.Animals;
 using Domain.Models;
 using Infrastructure.Database.MySQLDatabase;
 using Microsoft.EntityFrameworkCore;
