@@ -1,4 +1,4 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Animals;
 using FluentValidation;
 
 namespace Application.Validators.Cat

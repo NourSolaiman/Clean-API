@@ -27,8 +27,8 @@ namespace Infrastructure.Database
 
         private static List<User> allUsers = new()
         {
-            new User { Id = Guid.NewGuid(), Username = "JohnCorleone", PasswordHash = "killYou" },
-            new User { Id = Guid.NewGuid(), Username = "JaneCorleone", PasswordHash = "killYou2" },
+            new User { Id = Guid.NewGuid(), Username = "NourSolaiman", PasswordHash = "HejHej" },
+            new User { Id = Guid.NewGuid(), Username = "SolaimanNour", PasswordHash = "HejHej2" },
             //new UserModel { Id = new Guid("550e8400-e29b-41d4-a716-446655440000"), UserName = "TestUser", UserPassword = "TestPassword"}
         };
 

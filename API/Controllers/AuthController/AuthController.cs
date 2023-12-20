@@ -1,11 +1,12 @@
-﻿using Application.Queries.Users.GetUserByUserName;
+﻿using Application.Dtos.Users;
+using Application.Queries.Users.GetUserByUserName;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.AuthController
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -19,7 +20,7 @@ namespace API.Controllers.AuthController
             _mediator = mediator;
         }
 
-        /*
+
         [HttpPost("register")]
         public ActionResult<User> Register(UserDto request)
         {
@@ -30,21 +31,21 @@ namespace API.Controllers.AuthController
 
             return Ok(user);
         }
-        */
+
         [HttpPost("login")]
         public async Task<IActionResult> GetToken(string username, string password)
         {
-            /*
-            if (user.Username != request.Username)
-            {
-                return BadRequest("User not found");
-            }
 
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            {
-                return BadRequest("Password is wrong!");
-            }
-            */
+            //if (user.Username != request.Username)
+            //{
+            //    return BadRequest("User not found");
+            //}
+
+            //if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            //{
+            //    return BadRequest("Password is wrong!");
+            //}
+
             var token = await _mediator.Send(new GetUserByUserNameQuery(username, password));
 
             return Ok(token);

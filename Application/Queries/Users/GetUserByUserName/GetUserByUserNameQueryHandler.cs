@@ -1,26 +1,31 @@
 ﻿using Domain.Models;
-using Infrastructure.Authentication;
-using Infrastructure.Database;
+using Infrastructure.Authentication.Authorization;
+using Infrastructure.Database.MySQLDatabase;
 using MediatR;
 
 namespace Application.Queries.Users.GetUserByUserName
 {
     public class GetUserByUserNameQueryHandler : IRequestHandler<GetUserByUserNameQuery, string>
     {
-        public readonly MockDatabase _mockDatabase;
-        public readonly JWTTokenGenerator _JWTTokenGenerator;
+        //public readonly MockDatabase _mockDatabase;
+        private readonly caDBContext _caDBContext;
+        public readonly IAuthRepository _authRepository;
 
-        public GetUserByUserNameQueryHandler(MockDatabase mockDatabase, JWTTokenGenerator jWTTokenGenerator)
+        public GetUserByUserNameQueryHandler(caDBContext caDBContext, IAuthRepository authRepository)
         {
-            _mockDatabase = mockDatabase;
-            _JWTTokenGenerator = jWTTokenGenerator;
+            _caDBContext = caDBContext;
+            _authRepository = authRepository;
         }
 
         public Task<string> Handle(GetUserByUserNameQuery request, CancellationToken cancellationToken)
         {
-            User user = _mockDatabase.Users.FirstOrDefault(user => user.Username == request.UserName)!;
+            User user = _caDBContext.Users.FirstOrDefault(user => user.Username == request.UserName)!;
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Invalid username or password");
+            }
 
-            var token = _JWTTokenGenerator.GenerateJWTToken(user).ToString();
+            var token = _authRepository.GenerateJwtToken(user).ToString();
 
             return Task.FromResult(token);
         }

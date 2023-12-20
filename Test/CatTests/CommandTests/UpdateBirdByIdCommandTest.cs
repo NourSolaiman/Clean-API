@@ -1,8 +1,6 @@
-﻿using Application.Cats.DeleteCat.DeleteCat;
-using Application.Commands.Cats.UpdateCat;
-using Application.Dtos;
+﻿using Application.Commands.Cats.UpdateCat;
+using Application.Dtos.Animals;
 using Domain.Models;
-using Infrastructure.Database;
 using Infrastructure.Database.MySQLDatabase;
 using Microsoft.EntityFrameworkCore;
 using Moq;
