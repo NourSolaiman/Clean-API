@@ -1,35 +1,48 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Birds;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Birds.AddBirds
 {
     public class AddBirdCommandHandler : IRequestHandler<AddBirdCommand, Bird>
     {
-        private readonly caDBContext _caDBContext;
+        private readonly IBirdRepository _birdRepository;
+        private readonly ILogger<AddBirdCommandHandler> _logger;
 
-        public AddBirdCommandHandler(caDBContext caDBContext)
+
+        public AddBirdCommandHandler(IBirdRepository birdRepository, ILogger<AddBirdCommandHandler> logger)
         {
-            _caDBContext = caDBContext;
+            _birdRepository = birdRepository;
+            _logger = logger;
         }
-        public Task<Bird> Handle(AddBirdCommand request, CancellationToken cancellationToken)
+
+        public async Task<Bird> Handle(AddBirdCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.NewBird.Name) || request.NewBird.Name == "string")
+            try
             {
-                return Task.FromResult<Bird>(null!);
-            }
-            else
-            {
-                Bird BirdToCreate = new()
+                _logger.LogInformation("Starting to handle AddBirdCommand for bird: { BirdName}", request.NewBird.Name);
+                // Create a new Bird object with the provided details including color
+                Bird birdToCreate = new()
                 {
                     Id = Guid.NewGuid(),
                     Name = request.NewBird.Name,
                     CanFly = request.NewBird.CanFly,
+                    BirdColor = request.NewBird.BirdColor
                 };
-                _caDBContext.Birds.Add(BirdToCreate);
-                _caDBContext.SaveChangesAsync();
-                return Task.FromResult(BirdToCreate);
 
+                await _birdRepository.AddAsync(birdToCreate);
+
+                _logger.LogInformation("Bird successfully added with ID: {BirdId}", birdToCreate.Id);
+
+                // Return the created bird
+                return birdToCreate;
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex, "Error occurred while handling AddBirdCommand for bird: {BirdName}", request.NewBird.Name);
+                throw;
             }
         }
     }

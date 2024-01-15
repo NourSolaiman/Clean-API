@@ -1,34 +1,50 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Birds;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Birds.UpdateBird
 {
     public class UpdateBirdByIdCommandHandler : IRequestHandler<UpdateBirdByIdCommand, Bird>
     {
-        private readonly caDBContext _caDBContext;
-        public UpdateBirdByIdCommandHandler(caDBContext caDBContext)
-        {
-            _caDBContext = caDBContext;
-        }
-        public Task<Bird> Handle(UpdateBirdByIdCommand request, CancellationToken cancellationToken)
-        {
-            Bird birdToUpdate = _caDBContext.Birds.FirstOrDefault(bird => bird.Id == request.Id)!;
+        private readonly IBirdRepository _birdRepository;
+        private readonly ILogger<UpdateBirdByIdCommandHandler> _logger;
 
-            if (birdToUpdate != null)
+        public UpdateBirdByIdCommandHandler(IBirdRepository birdRepository, ILogger<UpdateBirdByIdCommandHandler> logger)
+        {
+            _birdRepository = birdRepository;
+            _logger = logger;
+        }
+        public async Task<Bird> Handle(UpdateBirdByIdCommand request, CancellationToken cancellationToken)
+        {
+            try
             {
-                if (string.IsNullOrWhiteSpace(request.UpdatedBird.Name) || request.UpdatedBird.Name == "string")
+                _logger.LogInformation("Starting to handle UpdateBirdByIdcommand {BirdId}", request.Id);
+
+                Bird birdToUpdate = await _birdRepository.GetByIdAsync(request.Id);
+
+                if (birdToUpdate == null)
                 {
-                    return Task.FromResult<Bird>(null!);
+                    return null;
                 }
-                else
-                {
-                    birdToUpdate.Name = request.UpdatedBird.Name;
-                    _caDBContext.SaveChangesAsync();
-                    return Task.FromResult(birdToUpdate);
-                }
+                // Log the details of the bird before update
+                _logger.LogInformation("Updating bird with ID: {BirdId}. Current details: {CurrentDetails}", request.Id, birdToUpdate);
+
+                // Updating the bird details
+                birdToUpdate.Name = request.UpdatedBird.Name;
+
+
+                await _birdRepository.UpdateAsync(birdToUpdate);
+
+
+                return birdToUpdate;
             }
-            return Task.FromResult(birdToUpdate)!;
+            catch (Exception ex)
+            {
+                // Log any exceptions that occur
+                _logger.LogError(ex, "Error occurred while handling UpdateBirdByIdCommand for bird ID: {BirdId}", request.Id);
+                throw;
+            }
         }
     }
 }

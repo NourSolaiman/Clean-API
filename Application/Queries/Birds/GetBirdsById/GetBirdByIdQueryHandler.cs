@@ -1,25 +1,33 @@
 ﻿using Application.Queries.Birds.GetBirdsById;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Birds;
 using MediatR;
 
 namespace Application.Queries.Birds.GetBirdById
 {
     public class GetBirdByIdQueryHandler : IRequestHandler<GetBirdByIdQuery, Bird>
     {
-        private readonly caDBContext _caDBContext;
-        public GetBirdByIdQueryHandler(caDBContext caDBContext)
+        private readonly IBirdRepository _birdRepository;
+        public GetBirdByIdQueryHandler(IBirdRepository birdRepository)
         {
-            _caDBContext = caDBContext;
+            _birdRepository = birdRepository;
         }
-        public Task<Bird> Handle(GetBirdByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Bird> Handle(GetBirdByIdQuery request, CancellationToken cancellationToken)
         {
-            Bird wantedBird = _caDBContext.Birds.Where(Bird => Bird.Id == request.Id).FirstOrDefault()!;
-            if (wantedBird == null)
+            Bird wantedBird = await _birdRepository.GetByIdAsync(request.Id);
+
+            try
             {
-                return Task.FromResult<Bird>(null!);
+                if (wantedBird == null)
+                {
+                    return null!;
+                }
+                return wantedBird;
             }
-            return Task.FromResult(wantedBird);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

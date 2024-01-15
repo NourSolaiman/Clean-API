@@ -7,31 +7,26 @@ namespace Domain.Models
         public static void SeedAnimals(ModelBuilder moduleBuilder)
         {
             moduleBuilder.Entity<Dog>().HasData(
-            new Dog { Id = Guid.NewGuid(), Name = "PeppeLeDog" },
-            new Dog { Id = Guid.NewGuid(), Name = "Fofi" },
-            new Dog { Id = Guid.NewGuid(), Name = "Simo" },
-            new Dog { Id = Guid.NewGuid(), Name = "Lano" },
-            new Dog { Id = new Guid("12345678-1234-5678-1234-567812345678"), Name = "TestDogForUnitTests" }
+            new Dog { Id = Guid.NewGuid(), Name = "PeppeLeDog", DogBreed = "Golden", DogWeight = 5 },
+            new Dog { Id = Guid.NewGuid(), Name = "Fofi", DogBreed = "Poodle", DogWeight = 9 },
+            new Dog { Id = Guid.NewGuid(), Name = "Simo", DogBreed = "Chihuahua", DogWeight = 4 },
+            new Dog { Id = Guid.NewGuid(), Name = "Lano", DogBreed = "Beagle", DogWeight = 7 }
 
             );
 
             moduleBuilder.Entity<Bird>().HasData(
-            new Bird { Id = Guid.NewGuid(), Name = "Robin", CanFly = true },
-            new Bird { Id = Guid.NewGuid(), Name = "Sparrow", CanFly = true },
-            new Bird { Id = Guid.NewGuid(), Name = "Birdy", CanFly = true },
-            new Bird { Id = Guid.NewGuid(), Name = "Herdy", CanFly = false },
-            new Bird { Id = Guid.NewGuid(), Name = "Gerdy", CanFly = true },
-            new Bird { Id = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a"), Name = "TestBirdForUnitTests" }
+            new Bird { Id = Guid.NewGuid(), Name = "Robin", CanFly = true, BirdColor = "Green" },
+            new Bird { Id = Guid.NewGuid(), Name = "Sparrow", CanFly = true, BirdColor = "Red" },
+            new Bird { Id = Guid.NewGuid(), Name = "Birdy", CanFly = true, BirdColor = "Blue" },
+            new Bird { Id = Guid.NewGuid(), Name = "Herdy", CanFly = true, BirdColor = "Gray" }
 
             );
 
             moduleBuilder.Entity<Cat>().HasData(
-            new Cat { Id = Guid.NewGuid(), Name = "Fluffy", LikesToPlay = true },
-            new Cat { Id = Guid.NewGuid(), Name = "Whiskers", LikesToPlay = false },
-            new Cat { Id = Guid.NewGuid(), Name = "Lickers", LikesToPlay = false },
-            new Cat { Id = Guid.NewGuid(), Name = "Sickers", LikesToPlay = true },
-            new Cat { Id = Guid.NewGuid(), Name = "Fluffers", LikesToPlay = false },
-            new Cat { Id = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5"), Name = "TestCatForUnitTests" }
+            new Cat { Id = Guid.NewGuid(), Name = "Nugget", LikesToPlay = true, CatBreed = "Fluffy", CatWeight = 2 },
+            new Cat { Id = Guid.NewGuid(), Name = "Whiskers", LikesToPlay = true, CatBreed = "NakedCat", CatWeight = 6 },
+            new Cat { Id = Guid.NewGuid(), Name = "Lickers", LikesToPlay = true, CatBreed = "Lion", CatWeight = 8 },
+            new Cat { Id = Guid.NewGuid(), Name = "Sickers", LikesToPlay = true, CatBreed = "Shirazi", CatWeight = 7 }
 
             );
         }

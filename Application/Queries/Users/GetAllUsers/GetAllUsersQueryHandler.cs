@@ -1,20 +1,24 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Users;
 using MediatR;
 
-namespace Application.Queries.Users.GetAllUsers
+namespace Application;
+
+public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<User>>
 {
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, List<User>>
+    private readonly IUserRepository _userRepository;
+    public GetAllUsersQueryHandler(IUserRepository userRepository)
     {
-        private readonly caDBContext _caDBContext;
-        public GetAllUsersQueryHandler(caDBContext caDBContext)
+        _userRepository = userRepository;
+    }
+
+    public async Task<List<User>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+    {
+        List<User> allUsersFromDatabase = await _userRepository.GetAllUsersAsync();
+        if (allUsersFromDatabase == null)
         {
-            _caDBContext = caDBContext;
+            throw new InvalidOperationException("No User was found!!");
         }
-        public Task<List<User>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
-        {
-            List<User> allUsersFromDB = _caDBContext.Users.ToList();
-            return Task.FromResult(allUsersFromDB);
-        }
+        return allUsersFromDatabase;
     }
 }

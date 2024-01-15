@@ -1,70 +1,53 @@
 ﻿using Application.Queries.Cats.GetAllCats;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Cats;
 using Moq;
 
-namespace Test.CatTests.QueryTests
+namespace Test.CatTests.QueryTest
 {
     [TestFixture]
-    public class GetAllCatsTests
+    public class GetAllCatsTest
     {
+        private Mock<ICatRepository> _catRepositoryMock;
         private GetAllCatsQueryHandler _handler;
-        private GetAllCatsQuery _request;
-        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new GetAllCatsQueryHandler(_dbMockContext.Object);
-        }
-
-        protected void SetupMockDbContext(List<Cat> cats)
-        {
-            var mockDbSet = new Mock<DbSet<Cat>>();
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Provider).Returns(cats.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Expression).Returns(cats.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.ElementType).Returns(cats.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.GetEnumerator()).Returns(cats.GetEnumerator());
-
-            _dbMockContext.Setup(c => c.Cats).Returns(mockDbSet.Object);
+            _catRepositoryMock = new Mock<ICatRepository>();
+            _handler = new GetAllCatsQueryHandler(_catRepositoryMock.Object);
         }
 
         [Test]
-        public async Task Handle_Valid_ReturnsAllCats()
+        public async Task GetAllCats_WhenCatsExist_ReturnsAllCats()
         {
             // Arrange
-            var cats = new List<Cat>
-            {
-                new Cat { Id = Guid.NewGuid(), Name = "Liam" },
-                new Cat { Id = Guid.NewGuid(), Name = "Nick" }
-            };
-
-            SetupMockDbContext(cats);
+            var fakeCats = new List<Cat> { new Cat(), new Cat() };
+            _catRepositoryMock.Setup(repo => repo.GetAllCatsAsync())
+                              .ReturnsAsync(fakeCats);
 
             // Act
-            var result = await _handler.Handle(_request, CancellationToken.None);
+            var query = new GetAllCatsQuery();
+            var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.That(result.Count, Is.EqualTo(cats.Count));
+            Assert.That(result.Count, Is.EqualTo(2));
+            _catRepositoryMock.Verify(repo => repo.GetAllCatsAsync(), Times.Once);
         }
 
         [Test]
-        public async Task Handle_InvalidDatabase_ReturnsNullOrEmptyList()
+        public async Task GetAllCats_WhenRepositoryReturnsNull_ThrowsInvalidOperationException()
         {
             // Arrange
-            var emptyCatsList = new List<Cat>();
-            SetupMockDbContext(emptyCatsList);
+            _catRepositoryMock.Setup(repo => repo.GetAllCatsAsync())
+                              .ReturnsAsync((List<Cat>)null);
 
             // Act
-            var result = await _handler.Handle(_request, CancellationToken.None);
+            var query = new GetAllCatsQuery();
 
             // Assert
-            Assert.IsEmpty(result);
+            Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(query, CancellationToken.None));
+            _catRepositoryMock.Verify(repo => repo.GetAllCatsAsync(), Times.Once);
         }
-
     }
 }

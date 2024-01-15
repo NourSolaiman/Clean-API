@@ -1,39 +1,53 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Cats;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Cats.UpdateCat
 {
     public class UpdateCatByIdCommandHandler : IRequestHandler<UpdateCatByIdCommand, Cat>
     {
-        private readonly caDBContext _caDBContext;
-        public UpdateCatByIdCommandHandler(caDBContext caDBContext)
+        private readonly ICatRepository _catRepository;
+        private readonly ILogger<UpdateCatByIdCommandHandler> _logger;
+
+        public UpdateCatByIdCommandHandler(ICatRepository catRepository, ILogger<UpdateCatByIdCommandHandler> logger)
         {
-            _caDBContext = caDBContext;
+            _catRepository = catRepository;
+            _logger = logger;
         }
-        public Task<Cat> Handle(UpdateCatByIdCommand request, CancellationToken cancellationToken)
+
+        public async Task<Cat> Handle(UpdateCatByIdCommand request, CancellationToken cancellationToken)
         {
-            Cat catToUpdate = _caDBContext.Cats.FirstOrDefault(cat => cat.Id == request.Id)!;
-
-            // Check if _mockDatabase.Cats is null before accessing it
-            if (catToUpdate != null)
+            try
             {
-                if (string.IsNullOrEmpty(catToUpdate.Name) || request.UpdatedCat.Name == "string")
+                _logger.LogInformation("Attempting to update cat with ID: {CatId}", request.Id);
 
-                {
-                    return Task.FromResult<Cat>(null!);
+                Cat catToUpdate = await _catRepository.GetByIdAsync(request.Id);
 
-                }
-                else
+                if (catToUpdate == null)
                 {
-                    catToUpdate.Name = request.UpdatedCat.Name;
-                    catToUpdate.LikesToPlay = request.UpdatedCat.LikesToPlay;
-                    _caDBContext.SaveChangesAsync();
-                    return Task.FromResult(catToUpdate);
+                    _logger.LogWarning("No cat found with ID: {CatId}", request.Id);
+                    return null!;
                 }
+
+                // Logging the details of the cat before update
+                _logger.LogInformation("Updating cat with ID: {CatId}. Current details: {CurrentDetails}", request.Id, catToUpdate);
+
+                catToUpdate.Name = request.UpdatedCat.Name;
+                catToUpdate.LikesToPlay = request.UpdatedCat.LikesToPlay;
+
+                await _catRepository.UpdateAsync(catToUpdate);
+
+                // Logging the successful update
+                _logger.LogInformation("Cat successfully updated with ID: {CatId}. Updated details: {UpdatedDetails}", request.Id, catToUpdate);
+
+                return catToUpdate;
             }
-            // Cat not found
-            return Task.FromResult(catToUpdate)!;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating cat with ID: {CatId}", request.Id);
+                throw;
+            }
         }
     }
 }

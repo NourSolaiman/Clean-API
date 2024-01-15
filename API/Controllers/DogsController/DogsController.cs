@@ -4,8 +4,6 @@ using Application.Commands.Dogs.UpdateDog;
 using Application.Dtos.Animals;
 using Application.Queries.Dogs.GetAllDogs;
 using Application.Queries.Dogs.GetDogById;
-using Application.Validators.Dog;
-using Application.Validators.GuidValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

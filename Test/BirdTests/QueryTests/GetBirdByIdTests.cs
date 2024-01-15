@@ -1,55 +1,42 @@
 ﻿using Application.Queries.Birds.GetBirdById;
 using Application.Queries.Birds.GetBirdsById;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Birds;
 using Moq;
 
 namespace Test.BirdTests.QueryTest
 {
     [TestFixture]
-    public class GetBirdByIdTests
+    public class GetBirdsByIdTests
     {
+        private Mock<IBirdRepository> _birdRepositoryMock;
         private GetBirdByIdQueryHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
+
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new GetBirdByIdQueryHandler(_dbMockContext.Object);
-        }
-        protected void SetupMockDbContext(List<Bird> birds)
-        {
-            var mockDbSet = new Mock<DbSet<Bird>>();
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Provider).Returns(birds.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Expression).Returns(birds.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.ElementType).Returns(birds.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.GetEnumerator()).Returns(birds.GetEnumerator());
-
-            _dbMockContext.Setup(b => b.Birds).Returns(mockDbSet.Object);
+            _birdRepositoryMock = new Mock<IBirdRepository>();
+            _handler = new GetBirdByIdQueryHandler(_birdRepositoryMock.Object);
         }
 
         [Test]
         public async Task Handle_ValidId_ReturnsCorrectBird()
         {
             // Arrange
-            var birdId = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a");
+            var birdId = Guid.NewGuid();
+            var bird = new Bird { Id = birdId, Name = "Chirpy" };
+            _birdRepositoryMock.Setup(repo => repo.GetByIdAsync(birdId)).ReturnsAsync(bird);
 
-            var bird = new List<Bird>
-            {
-                new Bird { Id = birdId }
-            };
-            SetupMockDbContext(bird);
             var query = new GetBirdByIdQuery(birdId);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
+            Assert.IsNotNull(result);
             Assert.That(result.Id, Is.EqualTo(birdId));
+            Assert.That(result.Name, Is.EqualTo("Chirpy"));
         }
 
         [Test]
@@ -57,9 +44,7 @@ namespace Test.BirdTests.QueryTest
         {
             // Arrange
             var invalidBirdId = Guid.NewGuid();
-
-            // Empty list to simulate no matching bird
-            SetupMockDbContext(new List<Bird>());
+            _birdRepositoryMock.Setup(repo => repo.GetByIdAsync(invalidBirdId)).ReturnsAsync((Bird)null);
 
             var query = new GetBirdByIdQuery(invalidBirdId);
 

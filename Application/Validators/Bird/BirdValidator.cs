@@ -5,14 +5,15 @@ namespace Application.Validators.Bird
 {
     public class BirdValidator : AbstractValidator<BirdDto>
     {
+
         public BirdValidator()
         {
             RuleFor(bird => bird.Name)
-                .NotEmpty().WithMessage("Bird Name can not be empty!")
-                .NotNull().WithMessage("Bird Name can not be NULL!");
-            RuleFor(Bird => Bird.CanFly)
-                .NotEmpty().WithMessage("Choose true or false");
+                .NotEmpty().WithMessage("Bird name can not be empty")
+                .NotNull().WithMessage("Bird name can not be null");
+            RuleFor(color => color.BirdColor)
+                .NotEmpty().WithMessage("The bird has to have a color")
+                .NotNull().WithMessage("The color can not be null");
         }
-
     }
 }

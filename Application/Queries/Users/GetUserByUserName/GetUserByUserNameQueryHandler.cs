@@ -1,33 +1,35 @@
 ﻿using Domain.Models;
-using Infrastructure.Authentication.Authorization;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Users;
 using MediatR;
 
-namespace Application.Queries.Users.GetUserByUserName
+namespace Application.Queries.Users.GetByUsername
 {
-    public class GetUserByUserNameQueryHandler : IRequestHandler<GetUserByUserNameQuery, string>
+    public class GetByUsernameQueryHandler : IRequestHandler<GetByUsernameQuery, User>
     {
-        //public readonly MockDatabase _mockDatabase;
-        private readonly caDBContext _caDBContext;
-        public readonly IAuthRepository _authRepository;
-
-        public GetUserByUserNameQueryHandler(caDBContext caDBContext, IAuthRepository authRepository)
+        private readonly IUserRepository _userRepository;
+        public GetByUsernameQueryHandler(IUserRepository userRepository)
         {
-            _caDBContext = caDBContext;
-            _authRepository = authRepository;
+            _userRepository = userRepository;
         }
-
-        public Task<string> Handle(GetUserByUserNameQuery request, CancellationToken cancellationToken)
+        public async Task<User> Handle(GetByUsernameQuery request, CancellationToken cancellationToken)
         {
-            User user = _caDBContext.Users.FirstOrDefault(user => user.Username == request.UserName)!;
-            if (user == null)
+            if (string.IsNullOrWhiteSpace(request.Username))
             {
-                throw new UnauthorizedAccessException("Invalid username or password");
+                throw new ArgumentException("Username cannot be null or empty.", nameof(request.Username));
             }
 
-            var token = _authRepository.GenerateJwtToken(user).ToString();
+            var user = await _userRepository.GetUserByUsernameAsync(request.Username);
+            if (user == null)
+            {
+                // Hantera fallet där användaren inte hittas. Du kan kasta ett undantag eller returnera null.
+                // Detta beror på hur du vill att din applikation ska hantera sådana situationer.
+                throw new KeyNotFoundException($"Användare med användarnamnet '{request.Username}' hittades inte.");
+            }
 
-            return Task.FromResult(token);
+            return user;
         }
+
+
     }
 }
+

@@ -1,34 +1,47 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Cats;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Cats.AddCats
 {
     public class AddCatCommandHandler : IRequestHandler<AddCatCommand, Cat>
     {
-        private readonly caDBContext _caDBContext;
+        private readonly ICatRepository _catRepository;
+        private readonly ILogger<AddCatCommandHandler> _logger;
 
-        public AddCatCommandHandler(caDBContext caDBContext)
+        public AddCatCommandHandler(ICatRepository catRepository, ILogger<AddCatCommandHandler> logger)
         {
-            _caDBContext = caDBContext;
+            _catRepository = catRepository;
+            _logger = logger;
+
         }
-        public Task<Cat> Handle(AddCatCommand request, CancellationToken cancellationToken)
+        public async Task<Cat> Handle(AddCatCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.NewCat.Name) || request.NewCat.Name == "string")
+            try
             {
-                return Task.FromResult<Cat>(null!);
+                _logger.LogInformation("Starting to handle addcatcommand for cat: {CatName}", request.NewCat.Name);
+
+                Cat CatToCreate = new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.NewCat.Name,
+                    LikesToPlay = request.NewCat.LikesToPlay,
+                    CatBreed = request.NewCat.Breed,
+                    CatWeight = request.NewCat.Weight
+
+                };
+
+                await _catRepository.AddAsync(CatToCreate);
+                _logger.LogInformation("Cat successfully added with the id: {CatId}", CatToCreate.Id);
+                return CatToCreate;
             }
-            Cat CatToCreate = new()
+            catch (Exception ex)
             {
-                Id = Guid.NewGuid(),
-                Name = request.NewCat.Name,
-                LikesToPlay = request.NewCat.LikesToPlay
+                _logger.LogError(ex, "Error occurred while handling AddCatCommand for cat: {CatName}", request.NewCat.Name);
+                throw;
+            }
 
-            };
-
-            _caDBContext.Cats.Add(CatToCreate);
-            _caDBContext.SaveChangesAsync();
-            return Task.FromResult(CatToCreate);
         }
     }
 }

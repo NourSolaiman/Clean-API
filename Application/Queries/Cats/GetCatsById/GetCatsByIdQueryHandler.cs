@@ -1,24 +1,33 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Cats;
 using MediatR;
 
 namespace Application.Cats.GetAllCats.GetCatsById
 {
     public class GetCatByIdQueryHandler : IRequestHandler<GetCatByIdQuery, Cat>
     {
-        private readonly caDBContext _caDBContext;
-        public GetCatByIdQueryHandler(caDBContext caDBContext)
+        private readonly ICatRepository _catRepository;
+        public GetCatByIdQueryHandler(ICatRepository catRepository)
         {
-            _caDBContext = caDBContext;
+            _catRepository = catRepository;
         }
-        public Task<Cat> Handle(GetCatByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Cat> Handle(GetCatByIdQuery request, CancellationToken cancellationToken)
         {
-            Cat wantedCat = _caDBContext.Cats.Where(Cat => Cat.Id == request.Id).FirstOrDefault()!;
-            if (wantedCat == null)
+            Cat wantedCat = await _catRepository.GetByIdAsync(request.Id);
+
+            try
             {
-                return Task.FromResult<Cat>(null!);
+                if (wantedCat == null)
+                {
+                    return null!;
+                }
+                return wantedCat;
+
             }
-            return Task.FromResult(wantedCat);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

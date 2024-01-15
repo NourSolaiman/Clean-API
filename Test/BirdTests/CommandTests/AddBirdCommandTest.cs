@@ -1,63 +1,57 @@
 ﻿using Application.Commands.Birds.AddBirds;
 using Application.Dtos.Animals;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Birds;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Test.BirdTests.CommandTest
 {
     [TestFixture]
-    public class AddBirdCommandTest
+    public class AddBirdTest
     {
+        private Mock<IBirdRepository> _mockBirdRepository;
+        private Mock<ILogger<AddBirdCommandHandler>> _mockLogger;
         private AddBirdCommandHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new AddBirdCommandHandler(_dbMockContext.Object);
-        }
-        protected void SetupMockDbContext(List<Bird> birds)
-        {
-            var mockDbSet = new Mock<DbSet<Bird>>();
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Provider).Returns(birds.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Expression).Returns(birds.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.ElementType).Returns(birds.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.GetEnumerator()).Returns(birds.GetEnumerator());
-
-            _dbMockContext.Setup(b => b.Birds).Returns(mockDbSet.Object);
+            // Initialize mock repository before each test
+            _mockBirdRepository = new Mock<IBirdRepository>();
+            // Initialize a mock logger
+            _mockLogger = new Mock<ILogger<AddBirdCommandHandler>>();
+            // Create the handler with the mock repository and mock logger
+            _handler = new AddBirdCommandHandler(_mockBirdRepository.Object, _mockLogger.Object);
         }
 
         [Test]
-        public async Task Handle_ValidCommand_AddNewBird()
+        public async Task AddBird_ShouldCallAddAsync_WhenValidDataIsProvided()
         {
             // Arrange
-            var birds = new List<Bird>();
-            SetupMockDbContext(birds);
-
-            var command = new AddBirdCommand(new BirdDto { Name = "NewBird" });
+            var birdDto = new BirdDto { Name = "Pete" };
+            var command = new AddBirdCommand(birdDto);
 
             // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, CancellationToken.None);
 
             // Assert
-            Assert.That(result.Name, Is.EqualTo("NewBird"));
+            _mockBirdRepository.Verify(repo => repo.AddAsync(It.Is<Bird>(b => b.Name == "Pete")), Times.Once());
         }
 
         [Test]
-        public async Task Handle_InValidCommand_EmptyBirdName()
+        public void AddBird_ShouldThrowException_WhenRepositoryThrowsException()
         {
             // Arrange
-            var command = new AddBirdCommand(new BirdDto { Name = "" });
+            var birdDto = new BirdDto { Name = "Pete" };
+            var command = new AddBirdCommand(birdDto);
+            _mockBirdRepository.Setup(repo => repo.AddAsync(It.IsAny<Bird>())).ThrowsAsync(new Exception("Database error"));
 
-            // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            Assert.IsNull(result);
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<Exception>(async () =>
+                await _handler.Handle(command, CancellationToken.None)
+            );
+            Assert.That(ex.Message, Is.EqualTo("Database error"));
         }
     }
 }

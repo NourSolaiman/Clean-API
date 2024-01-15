@@ -1,33 +1,45 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Dogs;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Dogs.AddDog
 {
     public class AddDogCommandHandler : IRequestHandler<AddDogCommand, Dog>
     {
-        private readonly caDBContext _caDBContext;
+        private readonly IDogRepository _dogRepository;
+        private readonly ILogger<AddDogCommandHandler> _logger;
 
-        public AddDogCommandHandler(caDBContext caDBContext)
+        public AddDogCommandHandler(IDogRepository dogRepository, ILogger<AddDogCommandHandler> logger)
         {
-            _caDBContext = caDBContext;
+            _dogRepository = dogRepository;
+            _logger = logger;
         }
-        public Task<Dog> Handle(AddDogCommand request, CancellationToken cancellationToken)
+
+        public async Task<Dog> Handle(AddDogCommand request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.NewDog.Name) || request.NewDog.Name == "string")
+            try
             {
-                return Task.FromResult<Dog>(null!);
-            }
-            else
-            {
+                _logger.LogInformation("Attempting to add a new dog with Name: {DogName}, DogBreed: {DogBreed}", request.NewDog.Name, request.NewDog.Breed);
+
                 Dog dogToCreate = new()
                 {
                     Id = Guid.NewGuid(),
-                    Name = request.NewDog.Name
+                    Name = request.NewDog.Name,
+                    DogBreed = request.NewDog.Breed,
+                    DogWeight = request.NewDog.Weight
                 };
-                _caDBContext.Dogs.Add(dogToCreate);
-                _caDBContext.SaveChangesAsync();
-                return Task.FromResult(dogToCreate);
+
+                await _dogRepository.AddAsync(dogToCreate);
+
+                _logger.LogInformation("Dog successfully added with ID: {DogId}", dogToCreate.Id);
+
+                return dogToCreate;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding a new dog with Name: {DogName}, DogBreed: {DogBreed}", request.NewDog.Name, request.NewDog.Breed);
+                throw;
             }
         }
     }

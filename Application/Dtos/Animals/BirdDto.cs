@@ -6,9 +6,7 @@ namespace Application.Dtos.Animals
     {
         public string Name { get; set; } = string.Empty;
         public bool CanFly { get; set; }
-        public string OwnerBirdUserName { get; set; } = string.Empty;
-        [JsonIgnore]
-        public ICollection<Guid> BirdOwnerIds { get; set; } = new List<Guid>();
+        public string BirdColor { get; set; }
 
     }
 }
