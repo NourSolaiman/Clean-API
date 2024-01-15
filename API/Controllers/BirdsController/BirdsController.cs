@@ -5,7 +5,6 @@ using Application.Dtos.Animals;
 using Application.Queries.Birds.GetAllBirds;
 using Application.Queries.Birds.GetBirdsById;
 using Application.Validators.Bird;
-using Application.Validators.GuidValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -69,7 +68,7 @@ namespace API.Controllers.BirdsController
         }
 
         // Create a new bird
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         [Route("addNewBird")]
         [ProducesResponseType(typeof(BirdDto), StatusCodes.Status200OK)]

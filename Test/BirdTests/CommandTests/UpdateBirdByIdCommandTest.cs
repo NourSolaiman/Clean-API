@@ -1,84 +1,54 @@
 ﻿using Application.Commands.Birds.UpdateBird;
 using Application.Dtos.Animals;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Birds;
+using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Application.Tests.Commands.Birds
+namespace Test.BirdTests.CommandTest
 {
     [TestFixture]
-    public class UpdateBirdByIdCommandHandlerTests
+    internal class UpdateBirdTest
     {
+        private Mock<IBirdRepository> _mockBirdRepository;
+        private Mock<ILogger<UpdateBirdByIdCommandHandler>> _mockLogger;
         private UpdateBirdByIdCommandHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new UpdateBirdByIdCommandHandler(_dbMockContext.Object);
-        }
-        protected void SetupMockDbContext(List<Bird> birds)
-        {
-            var mockDbSet = new Mock<DbSet<Bird>>();
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Provider).Returns(birds.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Expression).Returns(birds.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.ElementType).Returns(birds.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.GetEnumerator()).Returns(birds.GetEnumerator());
-
-            _dbMockContext.Setup(b => b.Birds).Returns(mockDbSet.Object);
+            _mockBirdRepository = new Mock<IBirdRepository>();
+            _mockLogger = new Mock<ILogger<UpdateBirdByIdCommandHandler>>();
+            _handler = new UpdateBirdByIdCommandHandler(_mockBirdRepository.Object, _mockLogger.Object);
         }
 
         [Test]
-        public async Task Handle_ValidId_UpdatesBird()
+        public async Task UpdateBirdById_ShouldUpdateBird_IfBirdExists()
         {
-            // Arrange
-            var birdId = new Guid("59d8fc74-3c94-4ed8-9a38-36b0b6b1074a");
-            var bird = new List<Bird>
-            {
-                new Bird
-                {
-                    Id = birdId,
-                    Name = "Nourki",
-                }
-            };
-            SetupMockDbContext(bird);
+            var birdId = Guid.NewGuid();
+            var bird = new Bird { Id = birdId, Name = "Old Name" };
+            var updatedBird = new BirdDto { Name = "New Name" };
+            _mockBirdRepository.Setup(repo => repo.GetByIdAsync(birdId)).ReturnsAsync(bird);
+            _mockBirdRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Bird>())).Returns(Task.CompletedTask);
 
-            var updatedName = new BirdDto { Name = "NewBirdName" };
-            var command = new UpdateBirdByIdCommand(updatedName, birdId);
-
-            // Act
-            await _handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            Assert.That(updatedName.Name, Is.EqualTo(command.UpdatedBird.Name));
-        }
-
-        [Test]
-        public async Task Handle_InvalidId_ReturnsNull()
-        {
-            // Arrange
-            var invalidBirdId = Guid.NewGuid();
-            var birdsList = new List<Bird>
-            {
-                new Bird
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Nour",
-                }
-            };
-            SetupMockDbContext(birdsList);
-            var updatedName = new BirdDto { Name = "NewBirdName" };
-            var command = new UpdateBirdByIdCommand(updatedName, invalidBirdId);
-
-            // Act
+            var command = new UpdateBirdByIdCommand(updatedBird, birdId);
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            // Assert
-            Assert.IsNull(result);
+            _mockBirdRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Bird>()), Times.Once);
+            Assert.That(result.Name, Is.EqualTo("New Name"));
         }
 
+        [Test]
+        public async Task UpdateBirdById_ShouldReturnNull_IfBirdDoesNotExist()
+        {
+            var birdId = Guid.NewGuid();
+            var updatedBird = new BirdDto { Name = "New Name" };
+            _mockBirdRepository.Setup(repo => repo.GetByIdAsync(birdId)).ReturnsAsync((Bird)null);
+
+            var command = new UpdateBirdByIdCommand(updatedBird, birdId);
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.IsNull(result);
+        }
     }
 }

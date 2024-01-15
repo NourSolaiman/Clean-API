@@ -1,20 +1,26 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Cats;
 using MediatR;
 
 namespace Application.Queries.Cats.GetAllCats
 {
     public class GetAllCatsQueryHandler : IRequestHandler<GetAllCatsQuery, List<Cat>>
     {
-        private readonly caDBContext _caDBContext;
-        public GetAllCatsQueryHandler(caDBContext caDBContext)
+        private readonly ICatRepository _catRepository;
+        public GetAllCatsQueryHandler(ICatRepository catRepository)
         {
-            _caDBContext = caDBContext;
+            _catRepository = catRepository;
         }
-        public Task<List<Cat>> Handle(GetAllCatsQuery request, CancellationToken cancellationToken)
+        public async Task<List<Cat>> Handle(GetAllCatsQuery request, CancellationToken cancellationToken)
         {
-            List<Cat> allCatsFromMockDB = _caDBContext.Cats.ToList();
-            return Task.FromResult(allCatsFromMockDB);
+            List<Cat> allCatsFromDatabase = await _catRepository.GetAllCatsAsync();
+            if (allCatsFromDatabase == null)
+            {
+                throw new InvalidOperationException("No Cats Was Found");
+            }
+
+            return allCatsFromDatabase;
+
         }
     }
 }

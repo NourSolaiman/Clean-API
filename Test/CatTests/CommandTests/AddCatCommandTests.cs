@@ -1,63 +1,72 @@
 ﻿using Application.Commands.Cats.AddCats;
 using Application.Dtos.Animals;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Cats;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Test.Cats.AddCats
+namespace Test.CatTests.CommandTest
 {
     [TestFixture]
-    public class AddCatCommandTest
+    public class AddCatTest
     {
-        private AddCatCommandHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
+        private Mock<ICatRepository> _mockCatRepository;
+        private Mock<ILogger<AddCatCommandHandler>> _mockLogger;
+        private IRequestHandler<AddCatCommand, Cat> _handler;
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new AddCatCommandHandler(_dbMockContext.Object);
-        }
-        protected void SetupMockDbContext(List<Cat> cats)
-        {
-            var mockDbSet = new Mock<DbSet<Cat>>();
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Provider).Returns(cats.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.Expression).Returns(cats.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.ElementType).Returns(cats.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Cat>>().Setup(m => m.GetEnumerator()).Returns(cats.GetEnumerator());
-
-            _dbMockContext.Setup(c => c.Cats).Returns(mockDbSet.Object);
+            _mockCatRepository = new Mock<ICatRepository>();
+            _mockLogger = new Mock<ILogger<AddCatCommandHandler>>();
+            _handler = new AddCatCommandHandler(_mockCatRepository.Object, _mockLogger.Object);
         }
 
         [Test]
-        public async Task Handle_ValidCommand_AddNewCat()
+        public async Task Handle_ShouldAddCat_WhenValidDataIsProvided()
         {
-            // Arrange
-            var cats = new List<Cat>();
-            SetupMockDbContext(cats);
+            var catDto = new CatDto
+            {
+                Name = "Nugget",
+                LikesToPlay = true,
+                Breed = "Fluffy",
+                Weight = 2
+            };
+            var command = new AddCatCommand(catDto);
+            var expectedCat = new Cat
+            {
+                Id = Guid.NewGuid(),
+                Name = catDto.Name,
+                LikesToPlay = catDto.LikesToPlay,
+                CatBreed = catDto.Breed,
+                CatWeight = catDto.Weight
+            };
+            _mockCatRepository.Setup(repo => repo.AddAsync(It.IsAny<Cat>())).ReturnsAsync(expectedCat);
 
-            var command = new AddCatCommand(new CatDto { Name = "NewCat" });
-
-            // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            // Assert
-            Assert.That(result.Name, Is.EqualTo("NewCat"));
+            _mockCatRepository.Verify(repo => repo.AddAsync(It.Is<Cat>(c => c.Name == catDto.Name)), Times.Once());
+            Assert.That(result.Name, Is.EqualTo(catDto.Name));
+            Assert.That(result.CatWeight, Is.EqualTo(catDto.Weight));
         }
 
         [Test]
-        public async Task Handle_InValidCommand_EmptyCatName()
+        public void Handle_ShouldThrowException_WhenInvalidDataIsProvided()
         {
-            // Arrange
-            var command = new AddCatCommand(new CatDto { Name = "" });
+            var catDto = new CatDto
+            {
+                Name = "", // Invalid data: empty name
+                LikesToPlay = true,
+                Breed = "Fluffy",
+                Weight = 2
+            };
+            var command = new AddCatCommand(catDto);
 
-            // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
+            _mockCatRepository.Setup(repo => repo.AddAsync(It.IsAny<Cat>())).ThrowsAsync(new ArgumentException("Name cannot be empty"));
 
-            // Assert
-            Assert.IsNull(result);
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.That(ex.Message, Is.EqualTo("Name cannot be empty"));
         }
     }
 }

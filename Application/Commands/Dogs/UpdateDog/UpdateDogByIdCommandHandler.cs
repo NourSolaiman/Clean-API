@@ -1,33 +1,53 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Dogs;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.Dogs.UpdateDog
 {
     public class UpdateDogByIdCommandHandler : IRequestHandler<UpdateDogByIdCommand, Dog>
     {
-        private readonly caDBContext _caDBContext;
-        public UpdateDogByIdCommandHandler(caDBContext caDBContext)
+        private readonly IDogRepository _dogRepository;
+        private readonly ILogger<UpdateDogByIdCommandHandler> _logger;
+
+        public UpdateDogByIdCommandHandler(IDogRepository dogRepository, ILogger<UpdateDogByIdCommandHandler> logger)
         {
-            _caDBContext = caDBContext;
+            _dogRepository = dogRepository;
+            _logger = logger;
         }
-        public Task<Dog> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
+
+        public async Task<Dog> Handle(UpdateDogByIdCommand request, CancellationToken cancellationToken)
         {
-            Dog dogToUpdate = _caDBContext.Dogs.FirstOrDefault(dog => dog.Id == request.Id)!;
-            // Check if _caDBContext.Dogs is null before accessing it
-            if (dogToUpdate != null)
+            try
             {
-                if (string.IsNullOrWhiteSpace(request.UpdatedDog.Name) || request.UpdatedDog.Name == "string")
+                _logger.LogInformation("Attempting to update dog with ID: {DogId}", request.Id);
+
+                Dog dogToUpdate = await _dogRepository.GetByIdAsync(request.Id);
+
+                if (dogToUpdate == null)
                 {
-                    return Task.FromResult<Dog>(null!);
+                    _logger.LogWarning("No dog found with ID: {DogId}", request.Id);
+                    return null!;
                 }
-                else
-                {
-                    dogToUpdate.Name = request.UpdatedDog.Name;
-                    _caDBContext.SaveChangesAsync();
-                }
+
+                // Log before updating details
+                _logger.LogInformation("Updating dog with ID: {DogId}. Current details: {CurrentDetails}", request.Id, dogToUpdate);
+
+                dogToUpdate.Name = request.UpdatedDog.Name;
+                // Include other fields if they are part of the update
+
+                await _dogRepository.UpdateAsync(dogToUpdate);
+
+                // Log after successful update
+                _logger.LogInformation("Dog successfully updated with ID: {DogId}. Updated details: {UpdatedDetails}", request.Id, dogToUpdate);
+
+                return dogToUpdate;
             }
-            return Task.FromResult(dogToUpdate)!;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating dog with ID: {DogId}", request.Id);
+                throw;
+            }
         }
     }
 }

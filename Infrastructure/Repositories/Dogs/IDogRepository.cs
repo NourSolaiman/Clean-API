@@ -4,11 +4,11 @@ namespace Infrastructure.Repositories.Dogs
 {
     public interface IDogRepository
     {
-        Task<List<Dog>> GetAllDogs(CancellationToken cancellationToken);
-        Task<Dog> GetDogById(Guid id, CancellationToken cancellationToken);
-        Task<List<Dog>> GetAllDogsByCriteria(string breed, int? weight, CancellationToken cancellationToken);
-        Task<Dog> AddDog(Dog newdog, CancellationToken cancellationToken);
-        Task<Dog> UpdateDog(Guid id, string newName, bool likesToPlay, string breed, int weight, string OwnerDogUserName, CancellationToken cancellationToken);
-        Task<Dog> DeleteDog(Guid id, CancellationToken cancellationToken);
+        Task<Dog> GetByIdAsync(Guid dogId);
+        Task<Dog> AddAsync(Dog dogToCreate);
+        Task UpdateAsync(Dog dog);
+        Task DeleteAsync(Guid dogId);
+        Task<List<Dog>> GetDogByBreedAndWeight(string breed, int? weight);
+        Task<List<Dog>> GetAllDogsAsync();
     }
 }

@@ -1,31 +1,62 @@
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-var jwtsettings = builder.Configuration.GetSection("JWTToken");
-var key = Encoding.ASCII.GetBytes(jwtsettings["Token"]!);
+//// Configure Serilog
+//Log.Logger = new LoggerConfiguration()
+//	.ReadFrom.Configuration(builder.Configuration)
+//	.WriteTo.Console()
+//	.CreateLogger();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//builder.Services.AddLogging();
+
+
+
+
+
+// Add Swagger/OpenAPI support
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddControllers(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    // Apply a global authorization policy
+    var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
+
+
+
+
+
+builder.Services.AddSwaggerGen(SwaggerConfig =>
+{
+    // Creating a Swagger document.
+    SwaggerConfig.SwaggerDoc("v1", new OpenApiInfo { Title = "API Animal", Version = "v1" });
+
+    // Adding JWT Authentication definition to Swagger.
+    // This allows Swagger UI to send the JWT token in the Authorization header.
+    SwaggerConfig.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
-        BearerFormat = "JWT"
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme."
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    // Telling SwaggerUI that the API uses Bearer(JWT) authentication
+    // so you don't need to add the Bearer in front of the pasted token.
+    SwaggerConfig.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -36,39 +67,36 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new string [] {}
+            new string[] {}
         }
     });
 });
 
+// Add application and infrastructure services
 builder.Services.AddApplication().AddInfrastructure();
-// Configure JWT Authentication
+
+// Configure JWT Bearer authentication.
 builder.Services.AddAuthentication(options =>
 {
+    // Setting the schemes to JWT Bearer.
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer("Bearer", options =>
+})
+.AddJwtBearer(options =>
 {
+    // Setting the parameters for validating incoming JWT tokens.
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        // Setting signing key from the configuration.
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
     };
 });
-
-//Test
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Admin", policy =>
-    {
-        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
-        policy.RequireAuthenticatedUser();
-    });
-});
-//TestEnds
 
 var app = builder.Build();
 
@@ -78,7 +106,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();

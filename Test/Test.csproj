@@ -34,9 +34,4 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UserTests\CommandTests\" />
-    <Folder Include="UserTests\QueryTests\" />
-  </ItemGroup>
-
 </Project>

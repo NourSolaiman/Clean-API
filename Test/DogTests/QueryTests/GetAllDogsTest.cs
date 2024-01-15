@@ -1,70 +1,56 @@
 ﻿using Application.Queries.Dogs.GetAllDogs;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Dogs;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Test.DogTests.QueryTest
 {
     [TestFixture]
-    public class GetAllDogsTests
+    public class GetAllDogsTest
     {
+        private Mock<IDogRepository> _dogRepositoryMock;
         private GetAllDogsQueryHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
-        private GetAllDogsQuery _request;
+        private Mock<ILogger<GetAllDogsQueryHandler>> _loggerMock;
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new GetAllDogsQueryHandler(_dbMockContext.Object);
-        }
-
-        protected void SetupMockDbContext(List<Dog> dogs)
-        {
-            var mockDbSet = new Mock<DbSet<Dog>>();
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
-
-            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
+            _dogRepositoryMock = new Mock<IDogRepository>();
+            _loggerMock = new Mock<ILogger<GetAllDogsQueryHandler>>();
+            _handler = new GetAllDogsQueryHandler(_dogRepositoryMock.Object);
         }
 
         [Test]
-        public async Task Handle_Valid_ReturnsAllDogs()
+        public async Task GetAllDogs_WhenDogsExist_ReturnsAllDogs()
         {
             // Arrange
-            var dogsList = new List<Dog>
-            {
-                new Dog { Id = Guid.NewGuid(), Name = "PeppeLeDog" },
-                new Dog { Id = Guid.NewGuid(), Name = "Fofi" }
-            };
-
-            SetupMockDbContext(dogsList);
+            var fakeDogs = new List<Dog> { new Dog(), new Dog() };
+            _dogRepositoryMock.Setup(repo => repo.GetAllDogsAsync())
+                              .ReturnsAsync(fakeDogs);
 
             // Act
-            var result = await _handler.Handle(_request, CancellationToken.None);
+            var query = new GetAllDogsQuery();
+            var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.That(result.Count, Is.EqualTo(dogsList.Count));
+            Assert.That(result.Count, Is.EqualTo(2));
+            _dogRepositoryMock.Verify(repo => repo.GetAllDogsAsync(), Times.Once);
         }
 
         [Test]
-        public async Task Handle_InvalidDatabase_ReturnsNullOrEmptyList()
+        public async Task GetAllDogs_WhenRepositoryReturnsNull_ThrowsInvalidOperationException()
         {
             // Arrange
-            var emptyDogsList = new List<Dog>();
-            SetupMockDbContext(emptyDogsList);
+            _dogRepositoryMock.Setup(repo => repo.GetAllDogsAsync())
+                              .ReturnsAsync((List<Dog>)null);
 
             // Act
-            var result = await _handler.Handle(_request, CancellationToken.None);
+            var query = new GetAllDogsQuery();
 
             // Assert
-            Assert.IsEmpty(result);
+            Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(query, CancellationToken.None));
+            _dogRepositoryMock.Verify(repo => repo.GetAllDogsAsync(), Times.Once);
         }
-
     }
 }

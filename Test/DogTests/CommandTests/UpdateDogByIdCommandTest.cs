@@ -1,87 +1,54 @@
 ﻿using Application.Commands.Dogs.UpdateDog;
 using Application.Dtos.Animals;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Dogs;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Test.DogTests.CommandTest
 {
     [TestFixture]
-    public class UpdateDogByIdCommandTest
+    internal class UpdateDogTest
     {
+        private Mock<IDogRepository> _mockDogRepository;
+        private Mock<ILogger<UpdateDogByIdCommandHandler>> _mockLogger;
         private UpdateDogByIdCommandHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new UpdateDogByIdCommandHandler(_dbMockContext.Object);
-        }
-        protected void SetupMockDbContext(List<Dog> dogs)
-        {
-            var mockDbSet = new Mock<DbSet<Dog>>();
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
-
-            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
+            _mockDogRepository = new Mock<IDogRepository>();
+            _mockLogger = new Mock<ILogger<UpdateDogByIdCommandHandler>>();
+            _handler = new UpdateDogByIdCommandHandler(_mockDogRepository.Object, _mockLogger.Object);
         }
 
         [Test]
-        public async Task Handle_ValidId_UpdatesDog()
+        public async Task Handle_ShouldUpdateDog_WhenDogExists()
         {
-            // Arrange
-            var dogId = new Guid("12345678-1234-5678-1234-567812345678");
-            var dogsList = new List<Dog>
-            {
-                new Dog
-                {
-                    Id = dogId,
-                    Name = "Nelson",
-                }
-            };
-            SetupMockDbContext(dogsList);
+            var dogId = Guid.NewGuid();
+            var existingDog = new Dog { Id = dogId, Name = "Old Name" };
+            var updatedDogDto = new DogDto { Name = "New Name" };
+            _mockDogRepository.Setup(repo => repo.GetByIdAsync(dogId)).ReturnsAsync(existingDog);
+            _mockDogRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Dog>())).Returns(Task.CompletedTask);
 
-            var updatedDog = new DogDto { Name = "NewDogName" };
-
-            var command = new UpdateDogByIdCommand(updatedDog, dogId);
-
-            // Act
-            await _handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            Assert.That(updatedDog.Name, Is.EqualTo(command.UpdatedDog.Name));
-        }
-
-        [Test]
-        public async Task Handle_InvalidId_ReturnNull()
-        {
-            // Arrange
-            var invalidDogId = Guid.NewGuid();
-            var dogsList = new List<Dog>
-            {
-                new Dog
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Nemar",
-                }
-            };
-            SetupMockDbContext(dogsList);
-
-            var updatedDog = new DogDto { Name = "NewDogName" };
-
-            var command = new UpdateDogByIdCommand(updatedDog, invalidDogId);
-
-            // Act
+            var command = new UpdateDogByIdCommand(updatedDogDto, dogId);
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            // Assert
-            Assert.IsNull(result);
+            Assert.IsNotNull(result);
+            Assert.That(result.Name, Is.EqualTo("New Name"));
         }
 
+        [Test]
+        public async Task Handle_ShouldReturnNull_WhenDogDoesNotExist()
+        {
+            var dogId = Guid.NewGuid();
+            var updatedDogDto = new DogDto { Name = "New Name" };
+            _mockDogRepository.Setup(repo => repo.GetByIdAsync(dogId)).ReturnsAsync((Dog)null);
+
+            var command = new UpdateDogByIdCommand(updatedDogDto, dogId);
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.IsNull(result);
+        }
     }
 }

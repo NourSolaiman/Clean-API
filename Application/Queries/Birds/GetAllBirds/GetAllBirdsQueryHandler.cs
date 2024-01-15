@@ -1,20 +1,24 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Birds;
 using MediatR;
 
 namespace Application.Queries.Birds.GetAllBirds
 {
     public class GetAllBirdsQueryHandler : IRequestHandler<GetAllBirdsQuery, List<Bird>>
     {
-        private readonly caDBContext _caDBContext;
-        public GetAllBirdsQueryHandler(caDBContext caDBContext)
+        private readonly IBirdRepository _birdRepository;
+        public GetAllBirdsQueryHandler(IBirdRepository birdRepository)
         {
-            _caDBContext = caDBContext;
+            _birdRepository = birdRepository;
         }
-        public Task<List<Bird>> Handle(GetAllBirdsQuery request, CancellationToken cancellationToken)
+        public async Task<List<Bird>> Handle(GetAllBirdsQuery request, CancellationToken cancellationToken)
         {
-            List<Bird> allBirdsFromDB = _caDBContext.Birds.ToList();
-            return Task.FromResult(allBirdsFromDB);
+            List<Bird> allBirdsFromDatabase = await _birdRepository.GetAllBirdsAsync();
+            if (allBirdsFromDatabase == null)
+            {
+                throw new InvalidOperationException("No Birds Was Found");
+            }
+            return allBirdsFromDatabase;
         }
     }
 }

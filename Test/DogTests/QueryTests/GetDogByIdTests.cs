@@ -1,7 +1,6 @@
 ﻿using Application.Queries.Dogs.GetDogById;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Dogs;
 using Moq;
 
 namespace Test.DogTests.QueryTest
@@ -10,26 +9,13 @@ namespace Test.DogTests.QueryTest
     public class GetDogByIdTests
     {
         private GetDogByIdQueryHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
-
+        private Mock<IDogRepository> _dogRepositoryMock;
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new GetDogByIdQueryHandler(_dbMockContext.Object);
-        }
-
-        protected void SetupMockDbContext(List<Dog> dogs)
-        {
-            var mockDbSet = new Mock<DbSet<Dog>>();
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
-
-            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
+            _dogRepositoryMock = new Mock<IDogRepository>();
+            _handler = new GetDogByIdQueryHandler(_dogRepositoryMock.Object);
         }
 
         [Test]
@@ -37,18 +23,18 @@ namespace Test.DogTests.QueryTest
         {
             // Arrange
             var dogId = new Guid("12345678-1234-5678-1234-567812345678");
-            var dog = new List<Dog>
-            {
-                new Dog { Id = dogId }
-            };
-            SetupMockDbContext(dog);
+            var dog = new Dog { Id = dogId, Name = "Rio" };
+            _dogRepositoryMock.Setup(repo => repo.GetByIdAsync(dogId)).ReturnsAsync(dog);
+
             var query = new GetDogByIdQuery(dogId);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
+            Assert.IsNotNull(result);
             Assert.That(result.Id, Is.EqualTo(dogId));
+            Assert.That(result.Name, Is.EqualTo("Rio"));
         }
 
         [Test]
@@ -56,9 +42,7 @@ namespace Test.DogTests.QueryTest
         {
             // Arrange
             var invalidDogId = Guid.NewGuid();
-
-            // Empty list to simulate no matching bird
-            SetupMockDbContext(new List<Dog>());
+            _dogRepositoryMock.Setup(repo => repo.GetByIdAsync(invalidDogId)).ReturnsAsync((Dog)null);
 
             var query = new GetDogByIdQuery(invalidDogId);
 

@@ -1,24 +1,34 @@
 ﻿using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
+using Infrastructure.Repositories.Dogs;
 using MediatR;
 
 namespace Application.Queries.Dogs.GetDogById
 {
     public class GetDogByIdQueryHandler : IRequestHandler<GetDogByIdQuery, Dog>
     {
-        private readonly caDBContext _caDBContext;
-        public GetDogByIdQueryHandler(caDBContext caDBContext)
+        private readonly IDogRepository _dogRepository;
+        public GetDogByIdQueryHandler(IDogRepository dogRepository)
         {
-            _caDBContext = caDBContext;
+            _dogRepository = dogRepository;
         }
-        public Task<Dog> Handle(GetDogByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Dog> Handle(GetDogByIdQuery request, CancellationToken cancellationToken)
         {
-            Dog wantedDog = _caDBContext.Dogs.Where(Dog => Dog.Id == request.Id).FirstOrDefault()!;
-            if (wantedDog == null)
+            Dog wantedDog = await _dogRepository.GetByIdAsync(request.Id);
+
+            try
             {
-                return Task.FromResult<Dog>(null!);
+                if (wantedDog == null)
+                {
+                    return null!;
+                }
+                return wantedDog;
+
             }
-            return Task.FromResult(wantedDog);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
     }
 }

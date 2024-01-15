@@ -1,73 +1,54 @@
 ﻿using Application.Commands.Dogs.DeleteDog;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Dogs;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Test.DogTests.CommandTest
 {
     [TestFixture]
-    public class DeleteDogByIdCommandTest
+    internal class DeleteDogByIdTest
     {
+        private Mock<IDogRepository> _mockDogRepository;
+        private Mock<ILogger<DeleteDogByIdCommandHandler>> _mockLogger;
         private DeleteDogByIdCommandHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new DeleteDogByIdCommandHandler(_dbMockContext.Object);
-        }
-        protected void SetupMockDbContext(List<Dog> dogs)
-        {
-            var mockDbSet = new Mock<DbSet<Dog>>();
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Provider).Returns(dogs.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.Expression).Returns(dogs.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.ElementType).Returns(dogs.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Dog>>().Setup(m => m.GetEnumerator()).Returns(dogs.GetEnumerator());
-
-            _dbMockContext.Setup(d => d.Dogs).Returns(mockDbSet.Object);
+            _mockDogRepository = new Mock<IDogRepository>();
+            _mockLogger = new Mock<ILogger<DeleteDogByIdCommandHandler>>();
+            _handler = new DeleteDogByIdCommandHandler(_mockDogRepository.Object, _mockLogger.Object);
         }
 
         [Test]
-        public async Task Handle_ValidId_DeletesDog()
+        public async Task DeleteDogById_ShouldRemoveDog_IfExistingDogIsDeleted()
         {
             // Arrange
-            var dogId = new Guid("12345678-1234-5678-1234-567812345678");
-            var dog = new List<Dog>
-            {
-                new Dog
-                {
-                    Id = dogId
-                }
-            };
-            SetupMockDbContext(dog);
-            var command = new DeleteDogByIdCommand(dogId);
+            var existingDogId = Guid.NewGuid();
+            _mockDogRepository.Setup(repo => repo.GetByIdAsync(existingDogId)).ReturnsAsync(new Dog { Id = existingDogId });
+            _mockDogRepository.Setup(repo => repo.DeleteAsync(existingDogId)).Returns(Task.CompletedTask);
+
+            var deleteCommand = new DeleteDogByIdCommand(existingDogId);
 
             // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
+            var result = await _handler.Handle(deleteCommand, new CancellationToken());
 
             // Assert
-            Assert.NotNull(result);
-            Assert.That(result.Id, Is.EqualTo(dogId));
+            _mockDogRepository.Verify(repo => repo.DeleteAsync(existingDogId), Times.Once);
         }
 
         [Test]
-        public async Task Handle_InvalidId_DoesNothing()
+        public void DeleteDogById_ShouldThrowException_IfDogNotFound()
         {
             // Arrange
-            var invalidDogId = Guid.NewGuid();
-            var dog = new List<Dog>();
-            SetupMockDbContext(dog);
+            var nonExistingDogId = Guid.NewGuid();
+            _mockDogRepository.Setup(repo => repo.GetByIdAsync(nonExistingDogId)).ReturnsAsync((Dog)null);
 
-            var command = new DeleteDogByIdCommand(invalidDogId);
+            var deleteCommand = new DeleteDogByIdCommand(nonExistingDogId);
 
-            // Act
-            var result = await _handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            Assert.IsNull(result);
+            // Act & Assert
+            Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(deleteCommand, new CancellationToken()));
         }
     }
 }

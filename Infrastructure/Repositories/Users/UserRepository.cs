@@ -1,9 +1,10 @@
 ﻿using Domain.Models;
 using Infrastructure.Database.MySQLDatabase;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.Users
 {
-    public class UserRepository : IUserRepository
+    internal class UserRepository : IUserRepository
     {
         private readonly caDBContext _caDBContext;
 
@@ -12,51 +13,51 @@ namespace Infrastructure.Repositories.Users
             _caDBContext = caDBContext;
         }
 
-        public async Task<User> RegisterUser(User userToRegister)
+        public async Task<User> AddUserAsync(User UserToCreate)
         {
-            try
+            _caDBContext.Users.AddAsync(UserToCreate);
+            _caDBContext.SaveChangesAsync();
+            return await Task.FromResult(UserToCreate);
+
+        }
+
+        public async Task DeleteUserAsync(Guid id)
+        {
+            var DeleteUserId = await _caDBContext.Users.FindAsync(id);
+            if (DeleteUserId != null)
             {
-                _caDBContext.Users.Add(userToRegister);
-                _caDBContext.SaveChanges();
-                return await Task.FromResult(userToRegister);
-            }
-            catch (ArgumentException e)
-            {
-                // Log the error and return an error response
-                //_logger.LogError(e, "Error registering user");
-                throw new ArgumentException(e.Message);
+                _caDBContext.Users.Remove(DeleteUserId);
+                await _caDBContext.SaveChangesAsync();
             }
         }
 
-        public async Task<List<User>> GetAllUsers()
+        public async Task<List<User>> GetAllUsersAsync()
         {
-            try
-            {
-                List<User> allUsersFromDatabase = _caDBContext.Users.ToList();
-                return await Task.FromResult(allUsersFromDatabase);
-            }
-            catch (ArgumentException e)
-            {
-                throw new ArgumentException(e.Message);
-            }
+            return await _caDBContext.Users.ToListAsync();
         }
-        //public async Task<string> SignInUserByUsernameAndPassword(string username, string password)
-        //{
-        //	User? wantedUser = await _sqlDatabase.Users.Where(user => user.Username == username).FirstOrDefaultAsync();
 
-        //	if (wantedUser == null)
-        //	{
-        //		return null!;
-        //	}
+        public async Task<User> GetUserByIdAsync(Guid id)
+        {
+            return await _caDBContext.Users.FindAsync(id);
 
-        //	bool userPassword = BCrypt.Net.BCrypt.Verify(password, wantedUser.Password);
 
-        //	if (!userPassword)
-        //	{
-        //		return null!;
-        //	}
+        }
 
-        //	return _jwtTokenGenerator.GenerateJwtToken(wantedUser);
-        //}
+        public async Task UpdateUserAsync(User user)
+        {
+            _caDBContext.Users.Update(user);
+            await _caDBContext.SaveChangesAsync();
+        }
+
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException("Username can not be null or empty.", nameof(username));
+            }
+            return await _caDBContext.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
+        }
+
+
     }
 }

@@ -1,14 +1,11 @@
 ﻿using FluentValidation;
 
-namespace Application.Validators.GuidValidation
+public class GuidValidator : AbstractValidator<Guid>
 {
-    public class GuidValidator : AbstractValidator<Guid>
+    public GuidValidator()
     {
-        public GuidValidator()
-        {
-            RuleFor(guid => guid)
-                .NotEmpty().WithMessage("Animal Id can not be empty!")
-                .NotEqual(Guid.Empty).WithMessage("Animal Id was not found!");
-        }
+        RuleFor(guid => guid)
+        .NotEmpty().WithMessage("Animal Id can not be empty")
+        .NotNull().WithMessage("Animal Id can not be null");
     }
 }

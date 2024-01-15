@@ -1,58 +1,50 @@
 ﻿using Application.Queries.Birds.GetAllBirds;
 using Domain.Models;
-using Infrastructure.Database.MySQLDatabase;
-using Microsoft.EntityFrameworkCore;
+using Infrastructure.Repositories.Birds;
 using Moq;
 
-namespace Test.BirdsTests.QueryTest
+namespace Test.BirdTests.QueryTest
 {
     [TestFixture]
     public class GetAllBirdsTests
     {
+        private Mock<IBirdRepository> _birdRepositoryMock;
         private GetAllBirdsQueryHandler _handler;
-        private Mock<caDBContext> _dbMockContext;
 
         [SetUp]
         public void SetUp()
         {
-            // Initialize the handler and mock database before each test
-            _dbMockContext = new Mock<caDBContext>();
-            _handler = new GetAllBirdsQueryHandler(_dbMockContext.Object);
+            _birdRepositoryMock = new Mock<IBirdRepository>();
+            _handler = new GetAllBirdsQueryHandler(_birdRepositoryMock.Object);
         }
 
-        protected void SetupMockDbContext(List<Bird> birds)
-        {
-            var mockDbSet = new Mock<DbSet<Bird>>();
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Provider).Returns(birds.AsQueryable().Provider);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.Expression).Returns(birds.AsQueryable().Expression);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.ElementType).Returns(birds.AsQueryable().ElementType);
-            mockDbSet.As<IQueryable<Bird>>().Setup(m => m.GetEnumerator()).Returns(birds.GetEnumerator());
-
-            _dbMockContext.Setup(b => b.Birds).Returns(mockDbSet.Object);
-        }
 
         [Test]
-        public async Task Handle_ReturnsListOfBirds()
+        public async Task GetAllBirds_WhenBirdsExist_ReturnsAllBirds()
         {
             // Arrange
-            var birds = new List<Bird>
-            {
-                new Bird { Id = Guid.NewGuid(), Name = "Alex" },
-
-                new Bird { Id = Guid.NewGuid(), Name = "Max" }
-            };
-
-            SetupMockDbContext(birds);
-
-            var query = new GetAllBirdsQuery();
+            var fakeBirds = new List<Bird> { new Bird(), new Bird() }; // Ensure you initialize the Bird properties if necessary
+            _birdRepositoryMock.Setup(repo => repo.GetAllBirdsAsync()).ReturnsAsync(fakeBirds);
 
             // Act
+            var query = new GetAllBirdsQuery();
             var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.That(result.Count, Is.EqualTo(birds.Count));
+            Assert.That(result.Count, Is.EqualTo(2));
+            _birdRepositoryMock.Verify(repo => repo.GetAllBirdsAsync(), Times.Once);
         }
 
+        [Test]
+        public void GetAllBirds_WhenRepositoryThrowsException_ThrowsException()
+        {
+            // Arrange
+            _birdRepositoryMock.Setup(repo => repo.GetAllBirdsAsync()).ThrowsAsync(new Exception("Database error"));
+
+            // Act & Assert
+            var query = new GetAllBirdsQuery();
+            Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
+
+        }
     }
 }

@@ -1,16 +1,14 @@
-﻿using MediatR;
+﻿using Domain.Models;
+using MediatR;
 
-namespace Application.Queries.Users.GetUserByUserName
+namespace Application.Queries.Users.GetByUsername
 {
-    public class GetUserByUserNameQuery : IRequest<string>
+    public class GetByUsernameQuery : IRequest<User>
     {
-        public GetUserByUserNameQuery(string username, string password)
+        public string Username { get; set; }
+        public GetByUsernameQuery(string username)
         {
-            UserName = username;
-            Password = password;
+            Username = username;
         }
-
-        public string UserName { get; }
-        public string Password { get; }
     }
 }

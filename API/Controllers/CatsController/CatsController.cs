@@ -5,7 +5,6 @@ using Application.Commands.Cats.UpdateCat;
 using Application.Dtos.Animals;
 using Application.Queries.Cats.GetAllCats;
 using Application.Validators.Cat;
-using Application.Validators.GuidValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
