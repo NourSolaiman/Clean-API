@@ -1,11 +1,11 @@
 ﻿namespace Domain.Models
 {
-    public class Animal
-    {
-        public Guid Id { get; set; }
+	public class Animal
+	{
+		public Guid Id { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+		public string Name { get; set; } = string.Empty;
 
-        public virtual ICollection<UserAnimal> UserAnimals { get; set; }
-    }
+		public virtual ICollection<UserAnimal> UserAnimals { get; set; }
+	}
 }

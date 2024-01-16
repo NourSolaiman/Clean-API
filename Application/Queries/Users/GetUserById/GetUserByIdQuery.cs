@@ -5,11 +5,11 @@ namespace Application;
 
 public class GetUserByIdQuery : IRequest<User>
 {
-    public GetUserByIdQuery(Guid userId)
-    {
-        Id = userId;
-    }
+	public GetUserByIdQuery(Guid userId)
+	{
+		Id = userId;
+	}
 
-    public Guid Id { get; }
+	public Guid Id { get; }
 
 }

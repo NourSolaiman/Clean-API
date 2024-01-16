@@ -3,12 +3,12 @@ using MediatR;
 
 namespace Application.Commands.UserAnimal.AddUserAnimal
 {
-    public class AddUserAnimalCommand : IRequest<UserAnimalDto>
-    {
+	public class AddUserAnimalCommand : IRequest<UserAnimalDto>
+	{
 
-        public Guid UserId { get; set; }
-        public Guid AnimalId { get; set; }
+		public Guid UserId { get; set; }
+		public Guid AnimalId { get; set; }
 
 
-    }
+	}
 }

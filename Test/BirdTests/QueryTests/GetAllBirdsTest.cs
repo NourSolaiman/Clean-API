@@ -5,46 +5,46 @@ using Moq;
 
 namespace Test.BirdTests.QueryTest
 {
-    [TestFixture]
-    public class GetAllBirdsTests
-    {
-        private Mock<IBirdRepository> _birdRepositoryMock;
-        private GetAllBirdsQueryHandler _handler;
+	[TestFixture]
+	public class GetAllBirdsTests
+	{
+		private Mock<IBirdRepository> _birdRepositoryMock;
+		private GetAllBirdsQueryHandler _handler;
 
-        [SetUp]
-        public void SetUp()
-        {
-            _birdRepositoryMock = new Mock<IBirdRepository>();
-            _handler = new GetAllBirdsQueryHandler(_birdRepositoryMock.Object);
-        }
+		[SetUp]
+		public void SetUp()
+		{
+			_birdRepositoryMock = new Mock<IBirdRepository>();
+			_handler = new GetAllBirdsQueryHandler(_birdRepositoryMock.Object);
+		}
 
 
-        [Test]
-        public async Task GetAllBirds_WhenBirdsExist_ReturnsAllBirds()
-        {
-            // Arrange
-            var fakeBirds = new List<Bird> { new Bird(), new Bird() }; // Ensure you initialize the Bird properties if necessary
-            _birdRepositoryMock.Setup(repo => repo.GetAllBirdsAsync()).ReturnsAsync(fakeBirds);
+		[Test]
+		public async Task GetAllBirds_WhenBirdsExist_ReturnsAllBirds()
+		{
+			// Arrange
+			var fakeBirds = new List<Bird> { new Bird(), new Bird() }; // Ensure you initialize the Bird properties if necessary
+			_birdRepositoryMock.Setup(repo => repo.GetAllBirdsAsync()).ReturnsAsync(fakeBirds);
 
-            // Act
-            var query = new GetAllBirdsQuery();
-            var result = await _handler.Handle(query, CancellationToken.None);
+			// Act
+			var query = new GetAllBirdsQuery();
+			var result = await _handler.Handle(query, CancellationToken.None);
 
-            // Assert
-            Assert.That(result.Count, Is.EqualTo(2));
-            _birdRepositoryMock.Verify(repo => repo.GetAllBirdsAsync(), Times.Once);
-        }
+			// Assert
+			Assert.That(result.Count, Is.EqualTo(2));
+			_birdRepositoryMock.Verify(repo => repo.GetAllBirdsAsync(), Times.Once);
+		}
 
-        [Test]
-        public void GetAllBirds_WhenRepositoryThrowsException_ThrowsException()
-        {
-            // Arrange
-            _birdRepositoryMock.Setup(repo => repo.GetAllBirdsAsync()).ThrowsAsync(new Exception("Database error"));
+		[Test]
+		public void GetAllBirds_WhenRepositoryThrowsException_ThrowsException()
+		{
+			// Arrange
+			_birdRepositoryMock.Setup(repo => repo.GetAllBirdsAsync()).ThrowsAsync(new Exception("Database error"));
 
-            // Act & Assert
-            var query = new GetAllBirdsQuery();
-            Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
+			// Act & Assert
+			var query = new GetAllBirdsQuery();
+			Assert.ThrowsAsync<Exception>(() => _handler.Handle(query, CancellationToken.None));
 
-        }
-    }
+		}
+	}
 }

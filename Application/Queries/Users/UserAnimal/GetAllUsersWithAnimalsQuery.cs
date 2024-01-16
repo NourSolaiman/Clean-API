@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Queries.UserAnimal.GetAll
 {
-    public class GetAllUsersWithAnimalsQuery : IRequest<IEnumerable<UserAnimalDto>>
-    {
-    }
+	public class GetAllUsersWithAnimalsQuery : IRequest<IEnumerable<UserAnimalDto>>
+	{
+	}
 }
