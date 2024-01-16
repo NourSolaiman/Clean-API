@@ -1,7 +1,7 @@
 ﻿namespace Infrastructure.Database
 {
-	public class MockDatabase
-	{/*
+    public class MockDatabase
+    {/*
         public List<User> Users
         {
             get { return allUsers; }
@@ -60,5 +60,5 @@
             new Cat { Id = new Guid("7e910a6d-8621-4f4b-8a0c-5e199f42eaa5"), Name = "TestCatForUnitTests"}
         };
         */
-	}
+    }
 }
