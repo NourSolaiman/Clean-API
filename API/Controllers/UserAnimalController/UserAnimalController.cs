@@ -3,7 +3,6 @@ using Application.Commands.UserAnimal.RemoveUserAnimal;
 using Application.Commands.UserAnimal.UpdateUserAnimal;
 using Application.Queries.UserAnimal.GetAll;
 using Application.Validators.UserAnimal;
-using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Application.Dtos.Animals
+﻿namespace Application.Dtos.Animals
 {
     public class CatDto
     {

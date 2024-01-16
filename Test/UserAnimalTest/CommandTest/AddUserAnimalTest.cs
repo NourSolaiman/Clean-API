@@ -1,5 +1,4 @@
 ﻿using Application.Commands.UserAnimal.AddUserAnimal;
-using Domain.Models;
 using Infrastructure.Repositories.UserAnimal;
 using Microsoft.Extensions.Logging;
 using Moq;

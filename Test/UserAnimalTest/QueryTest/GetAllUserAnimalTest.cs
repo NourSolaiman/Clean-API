@@ -1,6 +1,4 @@
 ﻿using Application.Queries.UserAnimal;
-using Application.Queries.UserAnimal.GetAll;
-using Domain.Models;
 using Infrastructure.Repositories.UserAnimal;
 using Microsoft.Extensions.Logging;
 using Moq;

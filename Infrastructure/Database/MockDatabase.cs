@@ -1,6 +1,4 @@
-﻿using Domain.Models;
-
-namespace Infrastructure.Database
+﻿namespace Infrastructure.Database
 {
     public class MockDatabase
     {/*

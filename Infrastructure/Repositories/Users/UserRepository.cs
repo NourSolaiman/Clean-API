@@ -15,8 +15,8 @@ namespace Infrastructure.Repositories.Users
 
         public async Task<User> AddUserAsync(User UserToCreate)
         {
-            _caDBContext.Users.AddAsync(UserToCreate);
-            _caDBContext.SaveChangesAsync();
+            await _caDBContext.Users.AddAsync(UserToCreate);
+            await _caDBContext.SaveChangesAsync();
             return await Task.FromResult(UserToCreate);
 
         }
