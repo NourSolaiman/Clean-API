@@ -40,7 +40,6 @@ namespace API.Controllers
 
 
 
-		// ------------------------------------------------------------------------------------------------------
 		[AllowAnonymous]
 		[HttpPost("register")]
 		public ActionResult<User> RegisterAsync(UserDto request)
