@@ -2,13 +2,13 @@
 
 namespace Infrastructure.Repositories.Dogs
 {
-    public interface IDogRepository
-    {
-        Task<Dog> GetByIdAsync(Guid dogId);
-        Task<Dog> AddAsync(Dog dogToCreate);
-        Task UpdateAsync(Dog dog);
-        Task DeleteAsync(Guid dogId);
-        Task<List<Dog>> GetDogByBreedAndWeight(string breed, int? weight);
-        Task<List<Dog>> GetAllDogsAsync();
-    }
+	public interface IDogRepository
+	{
+		Task<Dog> GetByIdAsync(Guid dogId);
+		Task<Dog> AddAsync(Dog dogToCreate);
+		Task UpdateAsync(Dog dog);
+		Task DeleteAsync(Guid dogId);
+		Task<List<Dog>> GetDogByBreedAndWeight(string breed, int? weight);
+		Task<List<Dog>> GetAllDogsAsync();
+	}
 }
