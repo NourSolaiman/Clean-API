@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Usercontroller
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -28,7 +27,6 @@ namespace API.Controllers.Usercontroller
         }
 
 
-        // ------------------------------------------------------------------------------------------------------
         // Get all users
         [HttpGet]
         [Route("getAllUsers")]
@@ -36,7 +34,6 @@ namespace API.Controllers.Usercontroller
         {
             return Ok(await _mediator.Send(new GetAllUsersQuery()));
         }
-        // ------------------------------------------------------------------------------------------------------
         // Get User by Id
         [HttpGet]
         [Route("getUserById")]
@@ -57,7 +54,6 @@ namespace API.Controllers.Usercontroller
                 throw new Exception(ex.Message);
             }
         }
-        // ------------------------------------------------------------------------------------------------------
         // Update Specific User
         [HttpPut]
         [Route("updateUser/{updatedUserId}")]
@@ -93,7 +89,6 @@ namespace API.Controllers.Usercontroller
             }
         }
 
-        // ------------------------------------------------------------------------------------------------------
         // Delete user by Id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserById(Guid id)
@@ -106,10 +101,5 @@ namespace API.Controllers.Usercontroller
             }
             return NotFound();
         }
-        // ------------------------------------------------------------------------------------------------------
-
-
-
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Dtos.UserAnimal;
+﻿using Application.Commands.UserAnimal.AddUserAnimal;
+using Application.Dtos.UserAnimal;
 using Application.Validators.Bird;
 using Application.Validators.Cat;
 
@@ -28,7 +29,11 @@ namespace Application.Validators.UserAnimal
                 .SetValidator(new BirdValidator());
         }
 
-    }
+		public object Validate(AddUserAnimalCommand command)
+		{
+			throw new NotImplementedException();
+		}
+	}
 
 
 }

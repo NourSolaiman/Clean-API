@@ -12,8 +12,8 @@ using System.Text;
 
 namespace API.Controllers
 {
-    // Defines the route as "api/[controller]" and sets this class as an API controller.
-    [Route("api/[controller]")]
+	// Defines the route as "api/[controller]" and sets this class as an API controller.
+	[Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {

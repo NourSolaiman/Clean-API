@@ -4,151 +4,112 @@ using Application.Commands.Cats.DeleteCat;
 using Application.Commands.Cats.UpdateCat;
 using Application.Dtos.Animals;
 using Application.Queries.Cats.GetAllCats;
+using Application.Queries.Cats.GetCatByAttribute;
 using Application.Validators.Cat;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace API.Controllers.CatsController
 {
-    [Route("api/v1/[controller]")]
-    [ApiController]
-    public class CatsController : ControllerBase
-    {
-        internal readonly IMediator _midiatR;
-        internal readonly CatValidator _catValidator;
-        internal readonly GuidValidator _guidValidator;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class CatsController : ControllerBase
+	{
+		internal readonly IMediator _mediator;
+		internal readonly CatValidator _validator;
+		internal readonly GuidValidator _guidValidator;
 
-        public CatsController(IMediator midiatR, CatValidator catValidator, GuidValidator guidValidator)
-        {
-            _midiatR = midiatR;
-            _catValidator = catValidator;
-            _guidValidator = guidValidator;
-        }
+		public CatsController(IMediator mediator, CatValidator validator, GuidValidator guidValidator)
+		{
+			_mediator = mediator;
+			_validator = validator;
+			_guidValidator = guidValidator;
+		}
 
-        // Get all cats from database
-        [HttpGet]
-        [Route("getAllCats")]
-        public async Task<IActionResult> GetAllCats()
-        {
-            try
-            {
-                return Ok(await _midiatR.Send(new GetAllCatsQuery()));
-                // return ok ("get alla cats")
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+		// Get all cats from the database
+		[HttpGet]
+		[Route("getAllCats")]
+		public async Task<IActionResult> GetAllCats()
+		{
+			return Ok(await _mediator.Send(new GetAllCatsQuery()));
+		}
 
+		// Get cats by breed and weight
+		[HttpGet("byBreedAndWeight")]
+		public async Task<IActionResult> GetCatsByBreedAndWeight([FromQuery] string? breed, [FromQuery] int? weight)
+		{
+			var query = new GetCatByAttributeQuery(breed, weight);
+			var cats = await _mediator.Send(query);
+			return cats.Any() ? Ok(cats) : NotFound("No cats found matching the criteria.");
+		}
 
-        }
+		// Get a cat by its ID
+		[HttpGet]
+		[Route("getCatById/{catId}")]
+		public async Task<IActionResult> GetCatById(Guid catId)
+		{
+			// Validate the GUID
+			var guidValidationResult = _guidValidator.Validate(catId);
+			if (!guidValidationResult.IsValid)
+			{
+				return BadRequest("Invalid Cat ID.");
+			}
 
-        // Get a cat by Id
-        [HttpGet]
-        [Route("getCatById/{catId}")]
-        public async Task<IActionResult> GetCatById(Guid catId)
-        {
-            // Validate Guid
-            var validatedGuid = _guidValidator.Validate(catId);
-            // Error handling
-            if (!validatedGuid.IsValid)
-            {
-                return BadRequest(validatedGuid.Errors.ConvertAll(errors => errors.ErrorMessage));
-            }
-            // Try Catch
-            try
-            {
-                return Ok(await _midiatR.Send(new GetCatByIdQuery(catId)));
-                // return ok ("get a cat by Id")
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+			var query = new GetCatByIdQuery(catId);
+			var cat = await _mediator.Send(query);
+			return cat != null ? Ok(cat) : NotFound($"No cat found with ID: {catId}");
+		}
 
-        // Create a new cat
-        //[Authorize(Roles = "Admin")]
-        [HttpPost]
-        [Route("addNewCat")]
-        [ProducesResponseType(typeof(CatDto), StatusCodes.Status200OK)]
+		// Create a new cat
+		[HttpPost]
+		[Route("addNewCat")]
+		public async Task<IActionResult> AddCat([FromBody] CatDto newCat)
+		{
+			// Validate the CatDto
+			var validationResults = _validator.Validate(newCat);
+			if (!validationResults.IsValid)
+			{
+				return BadRequest(validationResults.Errors.Select(e => e.ErrorMessage));
+			}
 
-        public async Task<IActionResult> AddCat([FromBody] CatDto newCat)
-        {
-            // Validate Cat
-            var validatedCat = _catValidator.Validate(newCat);
-            // Error handling
-            if (!validatedCat.IsValid)
-            {
-                return BadRequest(validatedCat.Errors.ConvertAll(errors => errors.ErrorMessage));
-            }
-            // Try Catch
-            try
-            {
-                return Ok(await _midiatR.Send(new AddCatCommand(newCat)));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+			var command = new AddCatCommand(newCat);
+			var cat = await _mediator.Send(command);
+			return CreatedAtAction(nameof(GetCatById), new { catId = cat.Id }, cat);
+		}
 
-        // Update a specific cat by Id
-        [Authorize(Roles = "Admin")]
-        [HttpPut]
-        [Route("updateCat/{updatedCatId}")]
-        public async Task<IActionResult> UpdateCat([FromBody] CatDto updatedCat, Guid updatedCatId)
-        {
-            // Validate Guid
-            var validatedGuid = _guidValidator.Validate(updatedCatId);
-            var validatedCat = _catValidator.Validate(updatedCat);
-            // Error handling
-            if (!validatedGuid.IsValid)
-            {
-                return BadRequest(validatedGuid.Errors.ConvertAll(errors => errors.ErrorMessage));
-            }
+		// Update an existing cat
+		[HttpPut]
+		[Route("updateCat/{updatedCatId}")]
+		public async Task<IActionResult> UpdateCat([FromBody] CatDto updatedCat, Guid updatedCatId)
+		{
+			// Validate CatDto and Guid
+			var catValidationResult = _validator.Validate(updatedCat);
+			var guidValidationResult = _guidValidator.Validate(updatedCatId);
 
-            if (!validatedCat.IsValid)
-            {
-                return BadRequest(validatedCat.Errors.ConvertAll(errors => errors.ErrorMessage));
-            }
-            // Try Catch
-            try
-            {
-                return Ok(await _midiatR.Send(new UpdateCatByIdCommand(updatedCat, updatedCatId)));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+			if (!catValidationResult.IsValid || !guidValidationResult.IsValid)
+			{
+				return BadRequest("Invalid data provided for update.");
+			}
 
-        // Delete a specific cat by Id
-        [Authorize(Roles = "Admin")]
-        [HttpDelete]
-        [Route("deleteCat/{deletedCatId}")]
-        public async Task<IActionResult> DeleteCat(Guid deletedCatId)
-        {
-            // Validate Guid
-            var validatedGuid = _guidValidator.Validate(deletedCatId);
-            // Error handling
-            if (!validatedGuid.IsValid)
-            {
-                return BadRequest(validatedGuid.Errors.ConvertAll(errors => errors.ErrorMessage));
-            }
-            // Try Catch
-            try
-            {
-                return Ok(await _midiatR.Send(new DeleteCatByIdCommand(deletedCatId)));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+			var command = new UpdateCatByIdCommand(updatedCat, updatedCatId);
+			var result = await _mediator.Send(command);
+			return result != null ? Ok(result) : NotFound($"No cat found with ID: {updatedCatId}");
+		}
 
-    }
+		// Delete a cat by its ID
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteCatById(Guid id)
+		{
+			// Validate the GUID
+			var guidValidationResult = _guidValidator.Validate(id);
+			if (!guidValidationResult.IsValid)
+			{
+				return BadRequest("Invalid Cat ID.");
+			}
+
+			var command = new DeleteCatByIdCommand(id);
+			var result = await _mediator.Send(command);
+			return result != null ? NoContent() : NotFound(); // NoContent for success, NotFound if cat does not exist
+		}
+	}
 }
